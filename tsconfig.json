@@ -1,0 +1,32 @@
+{
+	"compilerOptions": {
+		"target": "es5", // ES5로 컴파일
+		"lib": ["dom", "dom.iterable", "esnext"], // 사용할 라이브러리
+		"allowJs": true, // JavaScript 파일 허용
+		"noImplicitAny": false, // 암시적 any 방지
+		"skipLibCheck": true, // 라이브러리 체크 건너뛰기
+		"strict": true, // 엄격한 타입 검사 활성화
+		"forceConsistentCasingInFileNames": true, // 대소문자 일관성 강제
+		"noEmit": true, // 출력 파일 생성 안 함
+		"esModuleInterop": true, // ES 모듈 호환성
+		"module": "esnext", // ESNext 모듈을 사용
+		"moduleResolution": "node", // Node.js 모듈 해석 전략
+		"resolveJsonModule": true, // JSON 모듈 가져오기 허용
+		"isolatedModules": true, // 각 모듈을 독립적으로 컴파일
+		"jsx": "preserve", // Next.js의 최적화된 JSX 변환 사용
+		"incremental": true, // 증분 컴파일 활성화
+		"baseUrl": ".", // 기본 경로 설정
+		"plugins": [
+			{
+				"name": "next" // Next.js 플러그인 사용
+			}
+		]
+	},
+	"include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"], // 포함할 파일
+	"exclude": ["node_modules"], // 제외할 디렉토리
+	"ts-node": {
+		"compilerOptions": {
+			"module": "commonjs" // ts-node에서 CommonJS 모듈 사용
+		}
+	}
+}
