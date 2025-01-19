@@ -41,7 +41,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
 				<ReactQueryClientProvider>
 					<ThemeProvider>
 						<AuthProvider accessToken={session?.access_token}>
-							<Header />
+							<Header session={session} />
 							{children}
 						</AuthProvider>
 					</ThemeProvider>
