@@ -23,7 +23,7 @@ export default function Header({ session }) {
 				{/* 검색 */}
 				<div>
 					<Input
-						className="!text-[#fff] !bg-[#121B24] border-none placeholder:text-[inherit] placeholder:opacity-70 rounded-full pl-5 !font-light focus:outline-1  focus:outline-[#15F5BA] duration-0"
+						className="!text-[#fff] !bg-[#121B24] border-none rounded-full pl-5 !font-light focus:outline-1  focus:outline-[#15F5BA] duration-0 placeholder-[#688DB2] placeholder:opacity-100"
 						color="white"
 						placeholder="검색어를 입력하세요."
 						icon={<i className="fas fa-search text-[#15F5BA]" />}

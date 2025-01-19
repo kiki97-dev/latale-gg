@@ -74,7 +74,7 @@ export default function SignInModal({ open, handleOpen }) {
 							style={{ color: "#688DB2" }}
 						>
 							<span className="text-[#15F5BA]">라테일 </span>
-							팬카페 커뮤니티 사이트입니다
+							커뮤니티 팬사이트
 						</Typography>
 					</CardBody>
 					<CardFooter className="pt-0">

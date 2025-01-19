@@ -10,10 +10,9 @@ import {
 	Typography,
 } from "@material-tailwind/react";
 import {
-	Cog6ToothIcon,
-	InboxArrowDownIcon,
+	ChatBubbleOvalLeftEllipsisIcon,
+	DocumentTextIcon,
 	LifebuoyIcon,
-	PowerIcon,
 	UserCircleIcon,
 } from "@heroicons/react/24/solid";
 
@@ -23,24 +22,20 @@ export function UserDropdown({ session }) {
 	// profile menu component
 	const profileMenuItems = [
 		{
-			label: `${session?.user?.email?.split("@")?.[0]}`,
+			label: session?.user?.user_metadata?.name,
 			icon: UserCircleIcon,
 		},
 		{
-			label: "Edit Profile",
-			icon: Cog6ToothIcon,
+			label: "작성글",
+			icon: DocumentTextIcon,
 		},
 		{
-			label: "Inbox",
-			icon: InboxArrowDownIcon,
+			label: "댓글",
+			icon: ChatBubbleOvalLeftEllipsisIcon,
 		},
 		{
 			label: "Help",
 			icon: LifebuoyIcon,
-		},
-		{
-			label: "Sign Out",
-			icon: PowerIcon,
 		},
 	];
 
@@ -59,34 +54,24 @@ export function UserDropdown({ session }) {
 						size="sm"
 						alt="tania andrew"
 						withBorder={true}
-						className=" p-0.5 border-[#15F5BA]"
-						src="https://docs.material-tailwind.com/img/face-2.jpg"
+						className=" p-0.5 border-[#15F5BA] w-[40px] h-[40px]"
+						src={session?.user?.user_metadata?.avatar_url}
 					/>
 				</Button>
 			</MenuHandler>
-			<MenuList className="p-1">
+			<MenuList className="p-1 bg-[#17222D] border-[#15F5BA] text-[#688DB2] border-opacity-10">
 				{profileMenuItems.map(({ label, icon }, key) => {
-					const isLastItem = key === profileMenuItems.length - 1;
 					return (
 						<MenuItem
 							key={label}
 							onClick={closeMenu}
-							className={`flex items-center gap-2 rounded ${
-								isLastItem
-									? "hover:bg-red-500/10 focus:bg-red-500/10 active:bg-red-500/10"
-									: ""
-							}`}
+							className={`flex items-center gap-2 rounded hover:bg-[#1C2936] focus:bg-[#1C2936] active:bg-[#1C2936] hover:text-[#15F5BA] focus:text-[#15F5BA] active:text-[#15F5BA] `}
 						>
 							{React.createElement(icon, {
-								className: `h-4 w-4 ${isLastItem ? "text-red-500" : ""}`,
+								className: `h-5 w-5 `,
 								strokeWidth: 2,
 							})}
-							<Typography
-								as="span"
-								variant="small"
-								className="font-normal"
-								color={isLastItem ? "red" : "inherit"}
-							>
+							<Typography as="span" variant="small" className="font-normal">
 								{label}
 							</Typography>
 						</MenuItem>
