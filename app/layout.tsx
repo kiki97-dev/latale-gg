@@ -6,6 +6,7 @@ import { ReactNode } from "react";
 import ReactQueryClientProvider from "config/ReactQueryClientProvider";
 import AuthProvider from "config/auth-provider";
 import { createServerSupabaseClient } from "utils/supabase/server";
+import Header from "components/header";
 
 export const metadata: Metadata = {
 	title: "Create Next App",
@@ -24,6 +25,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
 	const {
 		data: { session },
 	} = await supabase.auth.getSession();
+
 	return (
 		<html lang="ko">
 			<head>
@@ -35,10 +37,13 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
 					referrerPolicy="no-referrer"
 				/>
 			</head>
-			<body className={`${pretendard.variable} font-pretendard`}>
+			<body className={`${pretendard.variable} font-pretendard bg-[#121B24]`}>
 				<ReactQueryClientProvider>
 					<ThemeProvider>
-						<AuthProvider accessToken={session?.access_token}>{children}</AuthProvider>
+						<AuthProvider accessToken={session?.access_token}>
+							<Header />
+							{children}
+						</AuthProvider>
 					</ThemeProvider>
 				</ReactQueryClientProvider>
 			</body>
