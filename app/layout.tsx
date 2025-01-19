@@ -6,7 +6,7 @@ import { ReactNode } from "react";
 import ReactQueryClientProvider from "config/ReactQueryClientProvider";
 import AuthProvider from "config/auth-provider";
 import { createServerSupabaseClient } from "utils/supabase/server";
-import Header from "components/header";
+import Header from "components/Header";
 
 export const metadata: Metadata = {
 	title: "Create Next App",
@@ -37,7 +37,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
 					referrerPolicy="no-referrer"
 				/>
 			</head>
-			<body className={`${pretendard.variable} font-pretendard bg-[#121B24]`}>
+			<body className={`${pretendard.variable} font-pretendard bg-[#121B24] relative`}>
 				<ReactQueryClientProvider>
 					<ThemeProvider>
 						<AuthProvider accessToken={session?.access_token}>
