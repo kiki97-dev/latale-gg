@@ -4,7 +4,7 @@ import { Card, CardBody, CardHeader, Typography } from "@material-tailwind/react
 import dynamic from "next/dynamic";
 import Image from "next/image";
 const Chart = dynamic(() => import("react-apexcharts"), { ssr: false });
-const chartConfig = {
+const chartConfig: any = {
 	type: "line",
 	height: 200,
 	series: [
