@@ -1,3 +1,5 @@
+import Ui from "./Ui";
+
 export default async function Home() {
-	return <div></div>;
+	return <Ui />;
 }
