@@ -38,14 +38,12 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
 					referrerPolicy="no-referrer"
 				/>
 			</head>
-			<body
-				className={`${pretendard.variable} font-pretendard bg-[#121B24] relative h-[1500px]`}
-			>
+			<body className={`${pretendard.variable} font-pretendard bg-[#121B24] relative`}>
 				<ReactQueryClientProvider>
 					<ThemeProvider>
 						<AuthProvider accessToken={session?.access_token}>
 							<Header session={session} />
-							<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex pt-[70px]">
+							<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex pt-[90px]">
 								<Sidebar />
 								{children}
 							</div>

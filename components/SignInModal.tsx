@@ -66,6 +66,7 @@ export default function SignInModal({ open, handleOpen }) {
 							width={300}
 							height={318}
 							alt="여행자SD"
+							priority={true}
 						/>
 
 						<Typography
