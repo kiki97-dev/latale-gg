@@ -30,15 +30,25 @@ const sidebarMeun = [
 ];
 
 export function Sidebar() {
+	const [selected, setSelected] = React.useState(1);
+	const setSelectedItem = (value) => setSelected(value);
+
 	return (
-		<Card className="h-auto w-full max-w-[17rem] fixed top-[84px] bg-[#121B24] shadow-none">
+		<Card className="h-auto w-full max-w-[17rem] fixed top-[84px] bg-[#17222D] shadow-none">
 			<List className="min-w-0 text-[#677079] ">
-				{sidebarMeun.map(({ label, icon }) => {
+				{sidebarMeun.map(({ label, icon }, i) => {
 					return (
-						<ListItem className="hover:bg-[#1C2936] hover:text-[#15F5BA] focus:bg-[#1C2936] focus:text-[#15F5BA]">
+						<ListItem
+							key={i}
+							className={`hover:bg-[#1C2936] hover:text-[#15F5BA] focus:bg-[#1C2936] focus:text-[#15F5BA] ${
+								selected === i + 1 ? "bg-[#17222D] text-[#15F5BA]" : ""
+							}`}
+							selected={selected === i + 1}
+							onClick={() => setSelectedItem(i + 1)}
+						>
 							<ListItemPrefix>
 								{React.createElement(icon, {
-									className: `h-5 w-5 `,
+									className: `h-5 w-5`,
 								})}
 							</ListItemPrefix>
 							{label}
@@ -46,6 +56,7 @@ export function Sidebar() {
 					);
 				})}
 			</List>
+
 			<ElyChart />
 		</Card>
 	);

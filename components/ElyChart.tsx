@@ -85,7 +85,7 @@ const chartConfig: any = {
 };
 export default function ElyChart() {
 	return (
-		<Card className="bg-[#17222D]">
+		<Card className="bg-[#17222D] border-t border-[#384D63] rounded-t-none border-dashed mt-1">
 			<CardHeader
 				floated={false}
 				shadow={false}

@@ -9,13 +9,106 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      free_boards: {
+        Row: {
+          author_id: string
+          comments_count: number | null
+          content: string
+          created_at: string
+          id: number
+          likes: number | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          author_id?: string
+          comments_count?: number | null
+          content: string
+          created_at?: string
+          id?: number
+          likes?: number | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          author_id?: string
+          comments_count?: number | null
+          content?: string
+          created_at?: string
+          id?: number
+          likes?: number | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      users: {
+        Row: {
+          comment_count: number
+          created_at: string
+          id: string
+          nickname: string
+          post_count: number
+          profile_image: string | null
+          updated_at: string
+        }
+        Insert: {
+          comment_count: number
+          created_at?: string
+          id: string
+          nickname: string
+          post_count: number
+          profile_image?: string | null
+          updated_at?: string
+        }
+        Update: {
+          comment_count?: number
+          created_at?: string
+          id?: string
+          nickname?: string
+          post_count?: number
+          profile_image?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
-      [_ in never]: never
+      free_boards_with_authors: {
+        Row: {
+          author_id: string | null
+          comments_count: number | null
+          content: string | null
+          created_at: string | null
+          id: number | null
+          likes: number | null
+          raw_user_meta_data: Json | null
+          title: string | null
+          updated_at: string | null
+        }
+        Relationships: []
+      }
+      free_boards_with_user_info: {
+        Row: {
+          author_id: string | null
+          author_nickname: string | null
+          author_profile_image: string | null
+          comments_count: number | null
+          content: string | null
+          created_at: string | null
+          id: number | null
+          likes: number | null
+          title: string | null
+          updated_at: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
-      [_ in never]: never
+      generate_unique_nickname: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never

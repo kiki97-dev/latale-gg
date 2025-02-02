@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
 	Avatar,
 	Button,
@@ -15,14 +15,66 @@ import {
 	LifebuoyIcon,
 	UserCircleIcon,
 } from "@heroicons/react/24/solid";
+import { createBrowserSupabaseClient } from "utils/supabase/client";
 
 export function UserDropdown({ session }) {
 	const [isMenuOpen, setIsMenuOpen] = React.useState(false);
 
+	const closeMenu = () => setIsMenuOpen(false);
+
+	//유저 정보 가지고 오기
+	const [userInfo, setUserInfo] = useState<{ nickname: string; profile_image: string } | null>(
+		null
+	);
+	const [loading, setLoading] = useState(true);
+	const [error, setError] = useState<string | null>(null);
+
+	useEffect(() => {
+		const fetchUserInfo = async () => {
+			if (!session) return;
+
+			const supabase = await createBrowserSupabaseClient();
+
+			try {
+				const { data, error } = await supabase
+					.from("users")
+					.select("nickname, profile_image")
+					.eq("id", session.user.id)
+					.single();
+
+				if (error) throw error;
+
+				setUserInfo(data); // 사용자 정보 업데이트
+			} catch (err) {
+				setError((err as Error).message); // 에러 상태 업데이트
+			} finally {
+				setLoading(false); // 로딩 끝
+			}
+		};
+
+		fetchUserInfo(); // 컴포넌트 마운트 후 호출
+	}, [session]); // 세션이 변경될 때마다 데이터 새로 고침
+
+	if (loading) {
+		return (
+			<Menu open={isMenuOpen} handler={setIsMenuOpen} placement="bottom-end">
+				로딩중
+			</Menu>
+		);
+	}
+
+	if (error) {
+		return (
+			<Menu open={isMenuOpen} handler={setIsMenuOpen} placement="bottom-end">
+				에러: {error}
+			</Menu>
+		);
+	}
+
 	// profile menu component
 	const profileMenuItems = [
 		{
-			label: session?.user?.user_metadata?.name,
+			label: userInfo?.nickname || session?.user?.user_metadata?.name || "이름 없음",
 			icon: UserCircleIcon,
 		},
 		{
@@ -39,8 +91,6 @@ export function UserDropdown({ session }) {
 		},
 	];
 
-	const closeMenu = () => setIsMenuOpen(false);
-
 	return (
 		<Menu open={isMenuOpen} handler={setIsMenuOpen} placement="bottom-end">
 			<MenuHandler>
@@ -55,7 +105,7 @@ export function UserDropdown({ session }) {
 						alt="tania andrew"
 						withBorder={true}
 						className=" p-0.5 border-[#15F5BA] w-[40px] h-[40px]"
-						src={session?.user?.user_metadata?.avatar_url}
+						src={userInfo?.profile_image}
 					/>
 				</Button>
 			</MenuHandler>
