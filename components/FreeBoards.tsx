@@ -3,12 +3,22 @@ import { Typography } from "@material-tailwind/react";
 import ChatBubbleOutlineOutlinedIcon from "@mui/icons-material/ChatBubbleOutlineOutlined";
 import ThumbUpOutlinedIcon from "@mui/icons-material/ThumbUpOutlined";
 import { Button } from "@material-tailwind/react";
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
 
 export default function FreeBoards({ post }) {
+	dayjs.extend(utc);
+	dayjs.extend(timezone);
+	const formattedDate = dayjs
+		.utc(post.created_at)
+		.tz("Asia/Seoul")
+		.format("YYYY년 MM월 DD일 HH:mm");
+
 	return (
 		<article className="bg-[#17222D] p-4 border border-[#384D63] rounded-lg text-[#688DB2]">
 			<div className="flex items-center gap-2 mb-5">
-				<div className="w-[50px] h-[50px] bg-blue-gray-50 rounded-full overflow-hidden">
+				<div className="w-[50px] h-[50px] bg-[#384D63] rounded-full overflow-hidden">
 					<img
 						src={post.author_profile_image}
 						alt="user"
@@ -24,7 +34,7 @@ export default function FreeBoards({ post }) {
 						{post.author_nickname}
 					</Typography>
 					<Typography variant="caption" style={{ lineHeight: "1", fontSize: "0.85rem" }}>
-						{post.created_at}
+						{formattedDate}
 					</Typography>
 				</div>
 			</div>
