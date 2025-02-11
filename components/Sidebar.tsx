@@ -1,13 +1,5 @@
 "use client";
-import {
-	Card,
-	Typography,
-	List,
-	ListItem,
-	ListItemPrefix,
-	ListItemSuffix,
-	Chip,
-} from "@material-tailwind/react";
+import { Card, List, ListItem, ListItemPrefix } from "@material-tailwind/react";
 import ArticleIcon from "@mui/icons-material/Article";
 import PaidIcon from "@mui/icons-material/Paid";
 import EqualizerIcon from "@mui/icons-material/Equalizer";

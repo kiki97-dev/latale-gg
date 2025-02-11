@@ -8,6 +8,7 @@ import "./postinput.css";
 import SignInModal from "./SignInModal";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createFreeBoard } from "actions/free_boards-actions";
+import { toast } from "react-hot-toast";
 
 export default function PostInput({ session }) {
 	const [isWriting, setIsWriting] = useState(false);
@@ -90,6 +91,11 @@ export default function PostInput({ session }) {
 		},
 	});
 
+	function stripHtml(html: string) {
+		const doc = new DOMParser().parseFromString(html, "text/html");
+		return doc.body.textContent || "";
+	}
+
 	return (
 		<>
 			<div className="border border-[#384D63] bg-[#17222D] px-4 py-3 rounded-lg">
@@ -105,7 +111,9 @@ export default function PostInput({ session }) {
 							color="white"
 							size="sm"
 							className="text-sm font-extrabold bg-[#15F5BA] text-[#261E5A] whitespace-nowrap"
-							onClick={handleStartWriting}
+							onClick={() => {
+								handleStartWriting();
+							}}
 						>
 							글쓰기
 						</Button>
@@ -145,12 +153,30 @@ export default function PostInput({ session }) {
 								취소
 							</Button>
 							<Button
-								disabled={title.trim() === "" || content.trim() === ""}
+								disabled={title.trim() === "" || stripHtml(content).trim() === ""}
 								variant="filled"
 								color="white"
 								size="sm"
 								className="text-sm font-extrabold bg-[#15F5BA] text-[#261E5A] whitespace-nowrap"
-								onClick={() => createPostMutation.mutate()}
+								onClick={() => {
+									const maxLength = 1000; // 최대 글자 수
+									const textLength = content.replace(/<[^>]*>/g, "").length; // HTML 태그 제외한 글자 수
+									if (textLength > maxLength) {
+										toast.error("최대 글자 수 1000자를 초과했습니다");
+										return;
+									}
+									if (title.length > 30) {
+										toast.error("제목은 최대 30자까지", {
+											style: {
+												background: "#17222D",
+												color: "#fff",
+												border: "1px solid #384D63",
+											},
+										});
+										return;
+									}
+									createPostMutation.mutate();
+								}}
 								loading={createPostMutation.isPending}
 							>
 								등록

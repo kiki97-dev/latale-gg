@@ -8,7 +8,7 @@ import { UserDropdown } from "./UserDropdown";
 
 export default function Header({ session }) {
 	return (
-		<header className="bg-[#17222D] text-[#fff] fixed top-0 left-0 w-full ">
+		<header className="bg-[#17222D] text-[#fff] fixed top-0 left-0 w-full z-10 border-b border-[#1C2936] ">
 			<div className="max-w-7xl mx-auto py-3 px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-3">
 				<Link href={"/"} className="flex items-center gap-1">
 					<Image
