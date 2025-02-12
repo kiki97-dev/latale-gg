@@ -8,7 +8,7 @@ import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
 import sanitizeHtml from "sanitize-html";
 
-export default function FreeBoards({ post }) {
+export default function PostContent({ post, detail = false }) {
 	dayjs.extend(utc);
 	dayjs.extend(timezone);
 	const formattedDate = dayjs
@@ -58,7 +58,7 @@ export default function FreeBoards({ post }) {
 						overflow: "hidden",
 						display: "-webkit-box",
 						WebkitBoxOrient: "vertical",
-						WebkitLineClamp: 5, // 5줄 제한
+						WebkitLineClamp: detail ? "none" : 5, // 5줄 제한
 					}}
 					dangerouslySetInnerHTML={{ __html: sanitizedContent }}
 				></Typography>

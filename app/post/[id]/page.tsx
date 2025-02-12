@@ -1,12 +1,8 @@
-import { createServerSupabaseClient } from "utils/supabase/server";
+import Ui from "./Ui";
 
-export default async function Home({ params }) {
+export default async function PostDetailPage({ params }) {
 	const { id } = await params;
-	const supabase = await createServerSupabaseClient();
+	const postId = Number(id);
 
-	return (
-		<>
-			<div>post id : {id}</div>
-		</>
-	);
+	return <Ui id={postId} />;
 }

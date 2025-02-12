@@ -1,9 +1,7 @@
 "use server";
 
-import { Database } from "types_db";
+import { FreeBoardsRow } from "types/freeBoards";
 import { createServerSupabaseClient } from "utils/supabase/server";
-
-export type FreeBoardsRow = Database["public"]["Views"]["free_boards_with_user_info"]["Row"];
 
 function handleError(error) {
 	console.error(error);
@@ -22,6 +20,21 @@ export async function getFreeBoards(): Promise<FreeBoardsRow[]> {
 	}
 
 	return data ?? [];
+}
+
+export async function getFreeBoardById(id: number): Promise<FreeBoardsRow | null> {
+	const supabase = await createServerSupabaseClient();
+	const { data, error } = await supabase
+		.from("free_boards_with_user_info")
+		.select("*")
+		.eq("id", id)
+		.maybeSingle();
+
+	if (error) {
+		handleError(error);
+	}
+
+	return data ?? null;
 }
 
 export async function createFreeBoard(

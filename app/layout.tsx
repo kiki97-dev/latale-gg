@@ -8,6 +8,8 @@ import AuthProvider from "config/auth-provider";
 import { createServerSupabaseClient } from "utils/supabase/server";
 import Header from "components/Header";
 import { Sidebar } from "components/Sidebar";
+import { Toaster } from "react-hot-toast";
+import RecoilProvider from "config/RecoilProvider";
 
 export const metadata: Metadata = {
 	title: "Create Next App",
@@ -42,11 +44,19 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
 				<ReactQueryClientProvider>
 					<ThemeProvider>
 						<AuthProvider accessToken={session?.access_token}>
-							<Header session={session} />
-							<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex pt-[90px]">
-								<Sidebar />
-								{children}
-							</div>
+							<RecoilProvider>
+								<div>
+									<Toaster />
+								</div>
+								<Header session={session} />
+								<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex pt-[90px]">
+									<Sidebar />
+									<div className="flex items-start flex-1 ml-[calc(272px+1.75rem)]">
+										{children}
+									</div>
+									<aside className="w-[300px] h-[300px] bg-blue-gray-200 ml-7"></aside>
+								</div>
+							</RecoilProvider>
 						</AuthProvider>
 					</ThemeProvider>
 				</ReactQueryClientProvider>
