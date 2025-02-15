@@ -162,7 +162,13 @@ export default function PostInput({ session }) {
 									const maxLength = 1000; // 최대 글자 수
 									const textLength = content.replace(/<[^>]*>/g, "").length; // HTML 태그 제외한 글자 수
 									if (textLength > maxLength) {
-										toast.error("최대 글자 수 1000자를 초과했습니다");
+										toast.error("최대 글자 수 1000자를 초과했습니다", {
+											style: {
+												background: "#17222D",
+												color: "#fff",
+												border: "1px solid #384D63",
+											},
+										});
 										return;
 									}
 									if (title.length > 30) {
