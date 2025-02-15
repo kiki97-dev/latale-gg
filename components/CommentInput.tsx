@@ -2,7 +2,7 @@ import { Button } from "@material-tailwind/react";
 import { Typography } from "@material-tailwind/react";
 import { useEffect, useState } from "react";
 import { useRecoilValue } from "recoil";
-import { sessionState } from "store/userState";
+import { userInfo } from "store/userState";
 
 export default function CommentInput() {
 	const [content, setContent] = useState(""); // 댓글 입력창 관련 상태
@@ -10,13 +10,13 @@ export default function CommentInput() {
 		if (e.target.value.length > 1000) return; // 1000자 초과 방지
 		setContent(e.target.value);
 	};
-	const session = useRecoilValue(sessionState); // 전역 세션 값 가져오기
+	const user = useRecoilValue(userInfo); // 전역 세션 값 가져오기
 
 	return (
 		<div className="flex  gap-3 mt-3">
 			<div className="w-[50px] h-[50px] bg-[#384D63] rounded-full overflow-hidden">
 				<img
-					src={session?.user.user_metadata.avatar_url}
+					src={user?.profile_image || "/assets/default_profile.jpg"}
 					alt="user"
 					className="w-full h-full object-cover"
 				/>
@@ -33,12 +33,12 @@ export default function CommentInput() {
 					value={content}
 					onChange={handleChange}
 				/>
-				<div className="flex w-full items-center justify-between gap-3">
+				<div className="flex w-full items-end justify-between gap-3">
 					<Typography
 						variant="small"
 						color="white"
 						style={{ lineHeight: "1" }}
-						className="opacity-60"
+						className="opacity-60 pb-1"
 					>
 						<span className="text-[#15F5BA]">{content.length}</span> / 1000
 					</Typography>
