@@ -43,12 +43,12 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
 			<body className={`${pretendard.variable} font-pretendard bg-[#121B24] relative`}>
 				<ReactQueryClientProvider>
 					<ThemeProvider>
-						<AuthProvider accessToken={session?.access_token}>
-							<RecoilProvider>
+						<RecoilProvider>
+							<AuthProvider>
 								<div>
 									<Toaster />
 								</div>
-								<Header session={session} />
+								<Header />
 								<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex pt-[90px]">
 									<Sidebar />
 									<div className="flex items-start flex-1 ml-[calc(272px+1.75rem)]">
@@ -56,8 +56,8 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
 									</div>
 									<aside className="w-[300px] h-[300px] bg-blue-gray-200 ml-7"></aside>
 								</div>
-							</RecoilProvider>
-						</AuthProvider>
+							</AuthProvider>
+						</RecoilProvider>
 					</ThemeProvider>
 				</ReactQueryClientProvider>
 			</body>
