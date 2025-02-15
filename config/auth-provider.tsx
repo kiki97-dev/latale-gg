@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { createBrowserSupabaseClient } from "utils/supabase/client";
 import { useRecoilState, useSetRecoilState } from "recoil";
-import { accessTokenState, sessionState } from "store/authState";
+import { accessTokenState, sessionState } from "store/userState";
 
 export default function AuthProvider({ children }) {
 	const supabase = createBrowserSupabaseClient();

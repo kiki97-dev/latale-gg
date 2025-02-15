@@ -6,7 +6,7 @@ import SignIn from "./SignIn";
 import SignOut from "./SignOut";
 import { UserDropdown } from "./UserDropdown";
 import { useRecoilValue } from "recoil";
-import { sessionState } from "store/authState";
+import { sessionState } from "store/userState";
 
 export default function Header() {
 	const session = useRecoilValue(sessionState); // 전역 세션 값 가져오기
