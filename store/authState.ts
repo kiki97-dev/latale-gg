@@ -4,3 +4,8 @@ export const sessionState = atom<Session | null>({
 	key: "sessionState",
 	default: null, // 기본값 설정
 });
+
+export const accessTokenState = atom<string | null>({
+	key: "accessTokenState",
+	default: null,
+});
