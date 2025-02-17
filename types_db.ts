@@ -9,6 +9,58 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      comments: {
+        Row: {
+          author_id: string
+          content: string
+          created_at: string
+          id: number
+          likes: number | null
+          post_id: number
+          updated_at: string | null
+        }
+        Insert: {
+          author_id?: string
+          content: string
+          created_at?: string
+          id?: number
+          likes?: number | null
+          post_id: number
+          updated_at?: string | null
+        }
+        Update: {
+          author_id?: string
+          content?: string
+          created_at?: string
+          id?: number
+          likes?: number | null
+          post_id?: number
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comments_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comments_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "free_boards"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comments_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "free_boards_with_user_info"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       free_boards: {
         Row: {
           author_id: string
@@ -74,19 +126,41 @@ export type Database = {
       }
     }
     Views: {
-      free_boards_with_authors: {
+      comments_with_user_info: {
         Row: {
           author_id: string | null
-          comments_count: number | null
           content: string | null
           created_at: string | null
           id: number | null
           likes: number | null
-          raw_user_meta_data: Json | null
-          title: string | null
+          nickname: string | null
+          post_id: number | null
+          profile_image: string | null
           updated_at: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "comments_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comments_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "free_boards"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comments_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "free_boards_with_user_info"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       free_boards_with_user_info: {
         Row: {

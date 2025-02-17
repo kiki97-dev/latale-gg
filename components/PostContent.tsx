@@ -71,9 +71,7 @@ export default function PostContent({ post, detail = false }) {
 					size="sm"
 				>
 					<ChatBubbleOutlineOutlinedIcon className="w-6 h-6" />
-					<Typography variant="paragraph">
-						{post.comments_count ? post.comments_count : 0}
-					</Typography>
+					<Typography variant="paragraph">{post.comments_count}</Typography>
 				</Button>
 				<Button
 					variant="text"
@@ -82,7 +80,7 @@ export default function PostContent({ post, detail = false }) {
 					size="sm"
 				>
 					<ThumbUpOutlinedIcon className="w-6 h-6  relative top-[-1px]" />
-					<Typography variant="paragraph">{post.likes ? post.likes : 0}</Typography>
+					<Typography variant="paragraph">{post.likes}</Typography>
 				</Button>
 			</div>
 		</article>

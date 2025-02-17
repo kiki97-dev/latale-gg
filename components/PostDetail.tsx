@@ -8,6 +8,8 @@ import PostContentSkeleton from "./PostContentSkeleton";
 import { Typography } from "@material-tailwind/react";
 import PostContent from "./PostContent";
 import CommentInput from "./CommentInput";
+import { getCommentsByPostId } from "actions/comments-actions";
+import Comment from "./Comment";
 
 export default function PostDetail({ postId }) {
 	const cachedPost = useRecoilValue(freeBoardByIdSelector(postId));
@@ -18,6 +20,14 @@ export default function PostDetail({ postId }) {
 		queryKey: ["free_board", postId],
 		queryFn: () => getFreeBoardById(postId),
 		enabled: !cachedPost, // 캐시된 데이터가 없을 때만 실행
+	});
+
+	const commentQuery = useQuery({
+		queryKey: ["comments", postId],
+		queryFn: () => getCommentsByPostId(postId),
+		staleTime: 1000 * 60 * 1, // 1분 동안 데이터를 신선한 상태로 유지
+		refetchOnWindowFocus: false, // 다른 사이트 갔다 와도 다시 요청 X
+		refetchOnMount: false, // 뒤로 가기로 돌아왔을 때 다시 요청 X
 	});
 
 	useEffect(() => {
@@ -43,7 +53,10 @@ export default function PostDetail({ postId }) {
 				</Typography>
 				<div>
 					{/* 댓글 입력창 */}
-					<CommentInput />
+					<CommentInput postId={postId} />
+					{commentQuery.data?.map((data) => (
+						<Comment comment={data} />
+					))}
 				</div>
 			</article>
 		</>
