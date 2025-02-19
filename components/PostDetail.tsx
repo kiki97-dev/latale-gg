@@ -19,7 +19,7 @@ export default function PostDetail({ postId }) {
 	const { data: fetchedPost, isFetching } = useQuery({
 		queryKey: ["free_board", postId],
 		queryFn: () => getFreeBoardById(postId),
-		enabled: !cachedPost, // 캐시된 데이터가 없을 때만 실행
+		initialData: cachedPost || undefined, // ✅ 전역 상태 데이터를 React Query 캐시로 설정
 	});
 
 	const commentQuery = useQuery({

@@ -43,7 +43,6 @@ export default function CommentInput({ postId }) {
 			});
 
 			// ✅ 게시글 목록에서도 `comments_count` 최신화
-			await queryClient.invalidateQueries({ queryKey: ["free_boards"] });
 			await queryClient.refetchQueries({ queryKey: ["free_boards"] });
 
 			// 입력 폼 초기화
