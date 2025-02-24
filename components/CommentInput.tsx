@@ -7,6 +7,7 @@ import { useRecoilValue } from "recoil";
 import { userInfo } from "store/userState";
 import SignInModal from "./SignInModal";
 import toast from "react-hot-toast";
+import Image from "next/image";
 
 export default function CommentInput({ postId }) {
 	const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -53,59 +54,86 @@ export default function CommentInput({ postId }) {
 	return (
 		<>
 			<div className="flex  gap-3 mt-3">
-				<div className="w-[50px] h-[50px] bg-[#384D63] rounded-full overflow-hidden">
-					<img
-						src={user?.profile_image || "/assets/default_profile.jpg"}
-						alt="user"
-						className="w-full h-full object-cover"
-					/>
+				<div className="w-[50px] h-[50px] bg-[#384D63] rounded-full overflow-hidden flex justify-center items-center">
+					{user?.profile_image ? (
+						<Image
+							width={50}
+							height={50}
+							src={user?.profile_image}
+							alt="user"
+							className={`w-full h-full object-cover `}
+						/>
+					) : (
+						<Image
+							width={40}
+							height={40}
+							src={"/images/default_profile.gif"}
+							alt="user"
+							className={`object-cover `}
+							unoptimized
+						/>
+					)}
 				</div>
 				<div className="flex flex-1 gap-3 flex-col bg-[#1C2936] rounded-lg p-4">
-					<textarea
-						placeholder="댓글을 입력하세요"
-						className="bg-inherit text-[#fff] resize-none outline-none h-auto rounded-lg min-h-[35px] overflow-hidden"
-						rows={1} // 최소 높이 설정
-						onInput={(e) => {
-							e.currentTarget.style.height = "auto"; // 높이 초기화
-							e.currentTarget.style.height = `${e.currentTarget.scrollHeight}px`; // 컨텐츠에 맞게 조절
-						}}
-						value={content}
-						onChange={handleChange}
-					/>
-					<div className="flex w-full items-end justify-between gap-3">
-						<Typography
-							variant="small"
-							color="white"
-							style={{ lineHeight: "1" }}
-							className="opacity-60 pb-1"
-						>
-							<span className="text-[#15F5BA]">{content.length}</span> / 1000
-						</Typography>
-						<Button
-							disabled={content.length === 0}
-							variant="filled"
-							color="white"
-							size="sm"
-							className="text-sm font-extrabold bg-[#15F5BA] text-[#261E5A] whitespace-nowrap"
-							onClick={() => {
-								const maxLength = 1000;
-								if (content.length > maxLength) {
-									toast.error("최대 글자 수 1000자를 초과했습니다", {
-										style: {
-											background: "#17222D",
-											color: "#fff",
-											border: "1px solid #384D63",
-										},
-									});
-									return;
-								}
-								createCommentMutation.mutate();
-							}}
-							loading={createCommentMutation.isPending}
-						>
-							등록
-						</Button>
-					</div>
+					{user ? (
+						<>
+							<textarea
+								placeholder="댓글을 입력하세요"
+								className="bg-inherit text-[#fff] resize-none outline-none h-auto rounded-lg min-h-[35px] overflow-hidden"
+								rows={1} // 최소 높이 설정
+								onInput={(e) => {
+									e.currentTarget.style.height = "auto"; // 높이 초기화
+									e.currentTarget.style.height = `${e.currentTarget.scrollHeight}px`; // 컨텐츠에 맞게 조절
+								}}
+								value={content}
+								onChange={handleChange}
+							/>
+							<div className="flex w-full items-end justify-between gap-3">
+								<Typography
+									variant="small"
+									color="white"
+									style={{ lineHeight: "1" }}
+									className="opacity-60 pb-1"
+								>
+									<span className="text-[#15F5BA]">{content.length}</span> / 1000
+								</Typography>
+								<Button
+									disabled={content.length === 0}
+									variant="filled"
+									color="white"
+									size="sm"
+									className="text-sm font-extrabold bg-[#15F5BA] text-[#261E5A] whitespace-nowrap"
+									onClick={() => {
+										const maxLength = 1000;
+										if (content.length > maxLength) {
+											toast.error("최대 글자 수 1000자를 초과했습니다", {
+												style: {
+													background: "#17222D",
+													color: "#fff",
+													border: "1px solid #384D63",
+												},
+											});
+											return;
+										}
+										createCommentMutation.mutate();
+									}}
+									loading={createCommentMutation.isPending}
+								>
+									등록
+								</Button>
+							</div>
+						</>
+					) : (
+						<>
+							<Typography
+								variant="paragraph"
+								color="white"
+								style={{ lineHeight: "1" }}
+							>
+								로그인 후 댓글을 작성할 수 있습니다.
+							</Typography>
+						</>
+					)}
 				</div>
 			</div>
 			<SignInModal open={open} handleOpen={handleOpen} />

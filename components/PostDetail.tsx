@@ -10,7 +10,6 @@ import PostContent from "./PostContent";
 import CommentInput from "./CommentInput";
 import { getCommentsByPostId } from "actions/comments-actions";
 import Comment from "./Comment";
-import CommentSkeleton from "./CommentSkeleton";
 
 export default function PostDetail({ postId }) {
 	const cachedPost = useRecoilValue(freeBoardByIdSelector(postId));
