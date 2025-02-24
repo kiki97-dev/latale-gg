@@ -101,19 +101,20 @@ export default function PostInput({ session }) {
 			<div className="border border-[#384D63] bg-[#17222D] px-4 py-3 rounded-lg">
 				{!isWriting ? (
 					// 글쓰기 전 상태
-					<div className="flex items-center justify-between gap-3">
+					<div
+						className="flex items-center justify-between gap-3 cursor-pointer"
+						onClick={() => {
+							handleStartWriting();
+						}}
+					>
 						<div className="bg-[#121B24] flex-1 px-5 py-2 rounded-full">
 							<p className="text-[#688DB2] ">오늘의 생각을 공유해보세요!</p>
 						</div>
-
 						<Button
 							variant="filled"
 							color="white"
 							size="sm"
 							className="text-sm font-extrabold bg-[#15F5BA] text-[#261E5A] whitespace-nowrap"
-							onClick={() => {
-								handleStartWriting();
-							}}
 						>
 							글쓰기
 						</Button>
