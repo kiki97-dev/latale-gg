@@ -10,6 +10,7 @@ import { Sidebar } from "components/Sidebar";
 import { Toaster } from "react-hot-toast";
 import RecoilProvider from "config/RecoilProvider";
 import Aside from "components/Aside";
+import { createServerSupabaseClient } from "utils/supabase/server";
 
 export const metadata: Metadata = {
 	title: "LATALE.GG",
@@ -24,6 +25,12 @@ const pretendard = localFont({
 });
 
 export default async function RootLayout({ children }: { children: ReactNode }) {
+	/* 여기코드 지우면 auth 프로바이더에서 빌드오류남 */
+	const supabase = await createServerSupabaseClient();
+	const {
+		data: { session },
+	} = await supabase.auth.getSession();
+
 	return (
 		<html lang="ko">
 			<head>
