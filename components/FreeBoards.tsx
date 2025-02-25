@@ -8,6 +8,7 @@ import { freeBoardsState } from "store/freeBoardState";
 import Link from "next/link";
 import { useEffect } from "react";
 import PostContentSkeleton from "./PostContentSkeleton";
+import { Post } from "types/post";
 
 export default function FreeBoards() {
 	const setFreeBoards = useSetRecoilState(freeBoardsState);
@@ -36,7 +37,7 @@ export default function FreeBoards() {
 			)}
 			{freeBoardsQuery.data?.map((post) => (
 				<Link key={post.id} href={`/post/${post.id}`}>
-					<PostContent post={post} />
+					<PostContent post={post as Post} />
 				</Link>
 			))}
 		</>

@@ -1,8 +1,9 @@
+// PostDetail.tsx 수정
 "use client";
 import { useRecoilValue } from "recoil";
 import { freeBoardByIdSelector } from "store/freeBoardState";
-import { useEffect, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useEffect } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query"; // useQueryClient 추가
 import { getFreeBoardById } from "actions/free_boards-actions";
 import PostContentSkeleton from "./PostContentSkeleton";
 import { Typography } from "@material-tailwind/react";
@@ -11,56 +12,62 @@ import CommentInput from "./CommentInput";
 import { getCommentsByPostId } from "actions/comments-actions";
 import Comment from "./Comment";
 import CommentSkeleton from "./CommentSkeleton";
+import { Post } from "types/post";
 
 export default function PostDetail({ postId }) {
 	const cachedPost = useRecoilValue(freeBoardByIdSelector(postId));
-	const [post, setPost] = useState(cachedPost);
-	const [isLoading, setIsLoading] = useState(!cachedPost); // 최초 상태 설정
+	const queryClient = useQueryClient(); // QueryClient 추가
 
-	const { data: fetchedPost, isFetching: isFetchingPost } = useQuery({
+	const { data: post, isLoading: isLoadingPost } = useQuery({
 		queryKey: ["free_board", postId],
 		queryFn: () => getFreeBoardById(postId),
-		initialData: cachedPost || undefined, // ✅ 전역 상태 데이터를 React Query 캐시로 설정
+		initialData: cachedPost || undefined,
+		refetchOnWindowFocus: false,
 	});
 
-	const { data: fetchedComment, isFetching: isFetchingComment } = useQuery({
+	const { data: comments, isLoading: isLoadingComments } = useQuery({
 		queryKey: ["comments", postId],
 		queryFn: () => getCommentsByPostId(postId),
-		staleTime: 1000 * 60 * 1, // 1분 동안 데이터를 신선한 상태로 유지
-		refetchOnWindowFocus: false, // 다른 사이트 갔다 와도 다시 요청 X
-		refetchOnMount: false, // 뒤로 가기로 돌아왔을 때 다시 요청 X
+		staleTime: 1000 * 60 * 1,
+		refetchOnWindowFocus: false,
+		refetchOnMount: false,
 	});
 
+	// 게시글 데이터가 변경될 때 게시글 목록 캐시도 업데이트
 	useEffect(() => {
-		if (fetchedPost !== undefined) {
-			setPost(fetchedPost);
-			setIsLoading(false);
+		if (post) {
+			// 게시글 목록의 해당 게시글도 업데이트
+			queryClient.setQueriesData({ queryKey: ["free_boards"] }, (oldData: any) => {
+				if (!oldData) return oldData;
+				return oldData.map((item: Post) =>
+					item.id === post.id ? { ...item, ...post } : item
+				);
+			});
 		}
-	}, [fetchedPost]);
+	}, [post, queryClient, postId]);
 
-	// 🔹 1. 데이터 로딩 중
-	if (isLoading || isFetchingPost) return <PostContentSkeleton />;
+	// 로딩 중
+	if (isLoadingPost) return <PostContentSkeleton />;
 
-	// 🔹 2. 게시글이 존재하지 않는 경우
+	// 게시글이 존재하지 않는 경우
 	if (!post) return <p>게시글이 존재하지 않습니다.</p>;
 
-	// 🔹 3. 정상적인 게시글 렌더링
+	// 정상적인 게시글 렌더링
 	return (
 		<>
-			<PostContent post={post} detail={true} />
+			<PostContent post={post as Post} detail={true} />
 			<article className="bg-[#17222D] p-4 border border-[#384D63] rounded-lg">
 				<Typography variant="h5" color="white">
-					댓글 <span className="text-[#15F5BA]">{fetchedComment?.length}</span>
+					댓글 <span className="text-[#15F5BA]">{comments?.length}</span>
 				</Typography>
 				<div>
-					{/* 댓글 입력창 */}
-					{isFetchingComment ? (
+					{isLoadingComments ? (
 						<CommentSkeleton />
 					) : (
 						<>
 							<CommentInput postId={postId} />
-							{fetchedComment?.map((data) => (
-								<Comment comment={data} />
+							{comments?.map((data) => (
+								<Comment key={data.id} comment={data} />
 							))}
 						</>
 					)}

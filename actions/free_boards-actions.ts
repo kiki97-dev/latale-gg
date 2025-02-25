@@ -54,6 +54,10 @@ export async function getFreeBoards(): Promise<FreeBoardsRow[]> {
 
 export async function getFreeBoardById(id: number): Promise<FreeBoardsRow | null> {
 	const supabase = await createServerSupabaseClient();
+
+	const { data: session } = await supabase.auth.getSession();
+	const userId = session?.session?.user?.id;
+
 	const { data, error } = await supabase
 		.from("free_boards_with_user_info")
 		.select("*")
@@ -64,7 +68,28 @@ export async function getFreeBoardById(id: number): Promise<FreeBoardsRow | null
 		handleError(error);
 	}
 
-	return data ?? null;
+	// 로그인한 사용자가 없으면 is_liked = false로 반환
+	if (!userId || !data) {
+		return data ? { ...data, is_liked: false } : null;
+	}
+
+	// 사용자가 로그인한 경우, 해당 게시글에 대한 좋아요 정보를 확인
+	const { data: likeData, error: likesError } = await supabase
+		.from("likes")
+		.select("post_id")
+		.eq("post_id", id)
+		.eq("user_id", userId)
+		.maybeSingle();
+
+	if (likesError) {
+		throw new Error(likesError.message);
+	}
+
+	// 좋아요 상태를 포함하여 반환
+	return {
+		...data,
+		is_liked: !!likeData,
+	};
 }
 
 export async function createFreeBoard(
