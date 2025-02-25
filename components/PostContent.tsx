@@ -7,11 +7,11 @@ import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
 import sanitizeHtml from "sanitize-html";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toggleLike } from "actions/like-actions";
 import { useRecoilValue } from "recoil";
 import { userInfo } from "store/userState";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 export default function PostContent({ post, detail = false }) {
 	dayjs.extend(utc);
