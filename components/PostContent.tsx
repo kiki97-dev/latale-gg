@@ -30,7 +30,7 @@ export default function PostContent({ post, detail = false }) {
 
 	const user = useRecoilValue(userInfo); // 전역 세션 값 가져오기
 	const queryClient = useQueryClient();
-	const [isLiked, setIsLiked] = useState(false);
+	const [isLiked, setIsLiked] = useState(post.is_liked || false);
 
 	// 좋아요 추가/삭제
 	const mutation = useMutation({
