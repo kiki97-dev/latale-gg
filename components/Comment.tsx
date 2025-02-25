@@ -11,11 +11,19 @@ export default function Comment({ comment }) {
 		<>
 			<div className="flex  gap-3 mt-3">
 				<div className="w-[50px] h-[50px] bg-[#384D63] rounded-full overflow-hidden">
-					<img
-						src={comment.profile_image || "/assets/default_profile.jpg"}
-						alt="user"
-						className="w-full h-full object-cover"
-					/>
+					{comment.profile_image.indexOf("profile_default_sd") !== -1 ? (
+						<img
+							src={comment.profile_image}
+							alt="user"
+							className="object-none object-[50%_35%]"
+						/>
+					) : (
+						<img
+							src={comment.profile_image}
+							alt="user"
+							className="w-full h-full object-cover"
+						/>
+					)}
 				</div>
 				<div className="flex flex-1 flex-col bg-[#1C2936] rounded-lg px-4 py-3">
 					<div className="flex items-center gap-2">

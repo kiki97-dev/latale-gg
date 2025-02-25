@@ -8,6 +8,7 @@ function handleError(error) {
 	throw new Error(error.message);
 }
 
+// 전체 게시글 불러오기
 export async function getFreeBoards(): Promise<FreeBoardsRow[]> {
 	const supabase = await createServerSupabaseClient();
 	const { data, error } = await supabase

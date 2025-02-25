@@ -7,6 +7,11 @@ import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
 import sanitizeHtml from "sanitize-html";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { toggleLike } from "actions/like-actions";
+import { useRecoilValue } from "recoil";
+import { userInfo } from "store/userState";
+import { useEffect, useState } from "react";
 
 export default function PostContent({ post, detail = false }) {
 	dayjs.extend(utc);
@@ -23,15 +28,56 @@ export default function PostContent({ post, detail = false }) {
 		},
 	});
 
+	const user = useRecoilValue(userInfo); // 전역 세션 값 가져오기
+	const queryClient = useQueryClient();
+	const [isLiked, setIsLiked] = useState(false);
+
+	// 좋아요 추가/삭제
+	const mutation = useMutation({
+		mutationFn: async () => {
+			if (!user?.id) {
+				throw new Error("User ID is undefined");
+			}
+			return toggleLike(post.id, user.id);
+		},
+		onSuccess: async (isLiked) => {
+			// 좋아요 상태 업데이트
+			setIsLiked(isLiked);
+
+			// ✅ 캐시된 `free_board` 데이터를 직접 수정
+			queryClient.setQueryData(["free_board", post.id], (oldData: any) => {
+				if (!oldData) return oldData;
+
+				return {
+					...oldData,
+					like_count: isLiked
+						? (oldData.like_count || 0) + 1
+						: (oldData.like_count || 0) - 1, // 좋아요 추가 또는 취소 반영
+				};
+			});
+
+			// ✅ free_boards 쿼리 무효화 → 최신 좋아요 개수 반영
+			await queryClient.refetchQueries({ queryKey: ["free_boards"] });
+		},
+	});
+
 	return (
 		<article className="bg-[#17222D] p-4 border border-[#384D63] rounded-lg text-[#688DB2]">
 			<div className="flex items-center gap-2 mb-5">
 				<div className="w-[50px] h-[50px] bg-[#384D63] rounded-full overflow-hidden">
-					<img
-						src={post.author_profile_image}
-						alt="user"
-						className="w-full h-full object-cover"
-					/>
+					{post.author_profile_image.indexOf("profile_default_sd") !== -1 ? (
+						<img
+							src={post.author_profile_image}
+							alt="user"
+							className="object-none object-[50%_35%]"
+						/>
+					) : (
+						<img
+							src={post.author_profile_image}
+							alt="user"
+							className="w-full h-full object-cover"
+						/>
+					)}
 				</div>
 				<div>
 					<Typography
@@ -76,11 +122,16 @@ export default function PostContent({ post, detail = false }) {
 				<Button
 					variant="text"
 					color="white"
-					className="flex items-center gap-2 px-2"
+					className={`flex items-center gap-2 px-2 ${isLiked ? "text-[#15F5BA]" : ""}`}
 					size="sm"
+					onClick={(e) => {
+						e.preventDefault(); // 링크의 기본 동작 방지
+						e.stopPropagation();
+						mutation.mutate();
+					}}
 				>
 					<ThumbUpOutlinedIcon className="w-6 h-6  relative top-[-1px]" />
-					<Typography variant="paragraph">{post.likes}</Typography>
+					<Typography variant="paragraph">{post.like_count}</Typography>
 				</Button>
 			</div>
 		</article>

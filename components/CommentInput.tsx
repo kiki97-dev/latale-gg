@@ -57,11 +57,11 @@ export default function CommentInput({ postId }) {
 				<div className="w-[50px] h-[50px] bg-[#384D63] rounded-full overflow-hidden flex justify-center items-center">
 					{user?.profile_image ? (
 						<Image
-							width={50}
-							height={50}
+							width={200}
+							height={200}
 							src={user?.profile_image}
 							alt="user"
-							className={`w-full h-full object-cover `}
+							className={`object-none object-[50%_35%]`}
 						/>
 					) : (
 						<Image
