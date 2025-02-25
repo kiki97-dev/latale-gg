@@ -10,6 +10,7 @@ import PostContent from "./PostContent";
 import CommentInput from "./CommentInput";
 import { getCommentsByPostId } from "actions/comments-actions";
 import Comment from "./Comment";
+import CommentSkeleton from "./CommentSkeleton";
 
 export default function PostDetail({ postId }) {
 	const cachedPost = useRecoilValue(freeBoardByIdSelector(postId));
@@ -38,7 +39,7 @@ export default function PostDetail({ postId }) {
 	}, [fetchedPost]);
 
 	// 🔹 1. 데이터 로딩 중
-	if (isLoading || isFetchingPost || isFetchingComment) return <PostContentSkeleton />;
+	if (isLoading || isFetchingPost) return <PostContentSkeleton />;
 
 	// 🔹 2. 게시글이 존재하지 않는 경우
 	if (!post) return <p>게시글이 존재하지 않습니다.</p>;
@@ -49,14 +50,20 @@ export default function PostDetail({ postId }) {
 			<PostContent post={post} detail={true} />
 			<article className="bg-[#17222D] p-4 border border-[#384D63] rounded-lg">
 				<Typography variant="h5" color="white">
-					댓글 <span className="text-[#15F5BA]">0</span>
+					댓글 <span className="text-[#15F5BA]">{fetchedComment?.length}</span>
 				</Typography>
 				<div>
 					{/* 댓글 입력창 */}
-					<CommentInput postId={postId} />
-					{fetchedComment?.map((data) => (
-						<Comment comment={data} />
-					))}
+					{isFetchingComment ? (
+						<CommentSkeleton />
+					) : (
+						<>
+							<CommentInput postId={postId} />
+							{fetchedComment?.map((data) => (
+								<Comment comment={data} />
+							))}
+						</>
+					)}
 				</div>
 			</article>
 		</>
