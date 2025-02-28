@@ -4,6 +4,7 @@ export interface Post {
 	title: string;
 	content: string;
 	created_at: string;
+	author_id: string;
 	author_nickname: string;
 	author_profile_image: string;
 	comments_count: number;

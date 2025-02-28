@@ -14,6 +14,11 @@ import { useRecoilValue } from "recoil";
 import { userInfo } from "store/userState";
 import { useState, useEffect } from "react";
 import { Post } from "types/post";
+import { IconButton } from "@material-tailwind/react";
+import { Menu } from "@material-tailwind/react";
+import { MenuHandler } from "@material-tailwind/react";
+import { MenuList } from "@material-tailwind/react";
+import { MenuItem } from "@material-tailwind/react";
 
 interface PostContentProps {
 	post: Post;
@@ -122,7 +127,8 @@ export default function PostContent({ post, detail = false }: PostContentProps) 
 
 	return (
 		<article className="bg-[#17222D] p-4 border border-[#384D63] rounded-lg text-[#688DB2]">
-			<div className="flex items-center gap-2 mb-5">
+			{/* 상단 */}
+			<div className="flex items-center gap-2 mb-5 justify-between">
 				<div className="w-[50px] h-[50px] bg-[#384D63] rounded-full overflow-hidden">
 					{post.author_profile_image.indexOf("profile_default_sd") !== -1 ? (
 						<img
@@ -138,7 +144,7 @@ export default function PostContent({ post, detail = false }: PostContentProps) 
 						/>
 					)}
 				</div>
-				<div>
+				<div className="flex-1">
 					<Typography
 						variant="h5"
 						className="mb-1"
@@ -148,7 +154,49 @@ export default function PostContent({ post, detail = false }: PostContentProps) 
 					</Typography>
 					<Typography variant="small">{formattedDate}</Typography>
 				</div>
+				{/* 현재 사용자가 게시물 작성자인 경우에만 메뉴 버튼 표시 */}
+				{user?.id === post.author_id && (
+					<Menu placement="bottom-end">
+						<MenuHandler>
+							<IconButton
+								color="white"
+								size="sm"
+								variant="text"
+								onClickCapture={(e) => {
+									// 캡처 단계에서 이벤트 처리
+									e.preventDefault();
+									e.stopPropagation();
+								}}
+							>
+								<svg
+									width="32"
+									height="32"
+									viewBox="0 0 23 23"
+									fill="none"
+									xmlns="http://www.w3.org/2000/svg"
+								>
+									<path
+										d="M17.7306 12.6734C16.8942 12.6916 16.2033 12.0188 16.2397 11.1825C16.2033 10.3825 16.8942 9.70972 17.7306 9.7279C18.5124 9.70972 19.2033 10.3825 19.2215 11.1825C19.2033 12.0188 18.5124 12.6916 17.7306 12.6734Z"
+										fill="#F7F7F8"
+									></path>
+									<path
+										d="M11.8009 12.6734C10.9645 12.6916 10.2736 12.0188 10.31 11.1825C10.2736 10.3825 10.9645 9.70972 11.8009 9.7279C12.5827 9.70972 13.2736 10.3825 13.2918 11.1825C13.2736 12.0188 12.5827 12.6916 11.8009 12.6734Z"
+										fill="#F7F7F8"
+									></path>
+									<path
+										d="M5.87121 12.6734C5.03483 12.6916 4.34392 12.0188 4.38028 11.1825C4.34392 10.3825 5.03483 9.70972 5.87121 9.7279C6.65304 9.70972 7.34396 10.3825 7.36214 11.1825C7.34396 12.0188 6.65304 12.6916 5.87121 12.6734Z"
+										fill="#F7F7F8"
+									></path>
+								</svg>
+							</IconButton>
+						</MenuHandler>
+						<MenuList className="bg-[#1C2936] p-0 min-w-[100px] border-[#384D63] text-[#fff]">
+							<MenuItem>삭제하기</MenuItem>
+						</MenuList>
+					</Menu>
+				)}
 			</div>
+			{/* 내용 */}
 			<div className="px-2 border-b border-[#384D63] pb-5 mb-3">
 				<Typography className="mb-1" variant="h5" style={{ color: "#fff" }}>
 					{post.title}
@@ -168,6 +216,7 @@ export default function PostContent({ post, detail = false }: PostContentProps) 
 					dangerouslySetInnerHTML={{ __html: sanitizedContent }}
 				></Typography>
 			</div>
+			{/* 댓글,추천수 */}
 			<div className="flex items-center gap-1">
 				<Button
 					variant="text"
