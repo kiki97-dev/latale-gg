@@ -19,6 +19,8 @@ import { Menu } from "@material-tailwind/react";
 import { MenuHandler } from "@material-tailwind/react";
 import { MenuList } from "@material-tailwind/react";
 import { MenuItem } from "@material-tailwind/react";
+import { deleteFreeBoard } from "actions/free_boards-actions";
+import { useRouter } from "next/navigation";
 
 interface PostContentProps {
 	post: Post;
@@ -42,6 +44,7 @@ export default function PostContent({ post, detail = false }: PostContentProps) 
 
 	const user = useRecoilValue(userInfo);
 	const queryClient = useQueryClient();
+	const router = useRouter();
 
 	// 초기 좋아요 상태를 서버에서 받은 is_liked로 설정
 	const [isLiked, setIsLiked] = useState(post.is_liked || false);
@@ -125,6 +128,86 @@ export default function PostContent({ post, detail = false }: PostContentProps) 
 		},
 	});
 
+	// 게시글 삭제 mutation 정의
+	const deleteMutation = useMutation({
+		mutationFn: async () => {
+			if (!user?.id) {
+				throw new Error("로그인이 필요합니다");
+			}
+
+			// 작성자 확인
+			if (user.id !== post.author_id) {
+				throw new Error("본인이 작성한 글만 삭제할 수 있습니다");
+			}
+
+			return deleteFreeBoard(post.id, user.id);
+		},
+
+		// 낙관적 업데이트 적용
+		onMutate: async () => {
+			// 이전 데이터 백업
+			const previousData = queryClient.getQueryData<Post>(["free_board", post.id]);
+			const previousBoardsData = queryClient.getQueryData(["free_boards"]);
+
+			// 1. 단일 게시글 캐시에서 제거
+			queryClient.removeQueries({ queryKey: ["free_board", post.id] });
+
+			// 2. 게시글 목록 캐시 업데이트 - 해당 게시글 제거
+			queryClient.setQueriesData({ queryKey: ["free_boards"] }, (oldData: any) => {
+				if (!oldData) return oldData;
+				return oldData.filter((item: Post) => item.id !== post.id);
+			});
+
+			return { previousData, previousBoardsData };
+		},
+
+		// 오류 발생 시 롤백
+		onError: (error, _, context) => {
+			console.error("게시글 삭제 중 오류 발생:", error);
+			alert(`삭제 실패: ${error.message || "알 수 없는 오류가 발생했습니다"}`);
+
+			// 롤백 처리
+			if (context?.previousData) {
+				queryClient.setQueryData(["free_board", post.id], context.previousData);
+			}
+
+			if (context?.previousBoardsData) {
+				queryClient.setQueryData(["free_boards"], context.previousBoardsData);
+			}
+		},
+
+		// 성공 시 최종 처리
+		onSuccess: async () => {
+			// 성공 메시지
+			alert("게시글이 삭제되었습니다");
+
+			// 필요한 경우 캐시 갱신
+			await queryClient.refetchQueries({
+				queryKey: ["free_boards"],
+				exact: true,
+			});
+
+			// 상세 페이지에서 삭제한 경우 목록으로 이동
+			if (detail) {
+				router.push("/boards/free"); // 적절한 경로로 수정하세요
+			}
+		},
+	});
+
+	// MenuItem에 연결할 핸들러 함수
+	const handleDeletePost = (e) => {
+		e.preventDefault();
+		e.stopPropagation();
+
+		// 삭제 중이면 중복 클릭 방지
+		if (deleteMutation.isPending) return;
+
+		// 삭제 확인
+		if (window.confirm("정말로 이 게시글을 삭제하시겠습니까?")) {
+			deleteMutation.mutate();
+		}
+	};
+
 	return (
 		<article className="bg-[#17222D] p-4 border border-[#384D63] rounded-lg text-[#688DB2]">
 			{/* 상단 */}
@@ -191,7 +274,12 @@ export default function PostContent({ post, detail = false }: PostContentProps) 
 							</IconButton>
 						</MenuHandler>
 						<MenuList className="bg-[#1C2936] p-0 min-w-[100px] border-[#384D63] text-[#fff]">
-							<MenuItem>삭제하기</MenuItem>
+							<MenuItem
+								onClick={handleDeletePost}
+								disabled={deleteMutation.isPending}
+							>
+								삭제하기
+							</MenuItem>
 						</MenuList>
 					</Menu>
 				)}

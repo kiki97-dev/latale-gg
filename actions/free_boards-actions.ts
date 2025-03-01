@@ -101,3 +101,36 @@ export async function createFreeBoard(
 
 	return data ?? ({} as FreeBoardsRow);
 }
+
+export async function deleteFreeBoard(postId: number, userId: string): Promise<boolean> {
+	const supabase = await createServerSupabaseClient();
+
+	// 먼저 게시글이 사용자의 것인지 확인
+	const { data: post, error: fetchError } = await supabase
+		.from("free_boards")
+		.select("author_id")
+		.eq("id", postId)
+		.maybeSingle();
+
+	if (fetchError) {
+		handleError(fetchError);
+	}
+
+	// 게시글이 없거나 작성자가 아니면 권한 오류
+	if (!post) {
+		throw new Error("게시글을 찾을 수 없습니다");
+	}
+
+	if (post.author_id !== userId) {
+		throw new Error("본인이 작성한 글만 삭제할 수 있습니다");
+	}
+
+	// 게시글 삭제
+	const { error: deleteError } = await supabase.from("free_boards").delete().eq("id", postId);
+
+	if (deleteError) {
+		handleError(deleteError);
+	}
+
+	return true; // 삭제 성공
+}
