@@ -77,9 +77,14 @@ export default function PostInput({ session }) {
 		}
 	};
 
+	const [isSubmitting, setIsSubmitting] = useState(false); // ✅ 중복 요청 방지용 상태
+
 	//글 업로드
 	const createPostMutation = useMutation({
 		mutationFn: () => createFreeBoard(title, content, session.user.id),
+		onMutate: () => {
+			setIsSubmitting(true); // ✅ 요청 시작 시 isSubmitting 활성화
+		},
 		onSuccess: () => {
 			// ✅ free_boards 쿼리 무효화 → 최신 데이터 불러옴
 			queryClient.invalidateQueries({ queryKey: ["free_boards"] });
@@ -88,6 +93,9 @@ export default function PostInput({ session }) {
 			setTitle("");
 			setContent("");
 			setImages([]);
+		},
+		onSettled: () => {
+			setIsSubmitting(false); // ✅ 요청 완료 후 다시 활성화
 		},
 	});
 
@@ -154,12 +162,21 @@ export default function PostInput({ session }) {
 								취소
 							</Button>
 							<Button
-								disabled={title.trim() === "" || stripHtml(content).trim() === ""}
+								disabled={
+									isSubmitting ||
+									title.trim() === "" ||
+									stripHtml(content).trim() === ""
+								}
 								variant="filled"
 								color="white"
 								size="sm"
 								className="text-sm font-extrabold bg-[#15F5BA] text-[#261E5A] whitespace-nowrap"
 								onClick={() => {
+									if (isSubmitting) {
+										alert("글을 등록하는 중입니다. 잠시만 기다려주세요!"); // ✅ 경고 메시지 추가
+										return;
+									}
+
 									const maxLength = 1000; // 최대 글자 수
 									const textLength = content.replace(/<[^>]*>/g, "").length; // HTML 태그 제외한 글자 수
 									if (textLength > maxLength) {
