@@ -21,6 +21,13 @@ import { MenuList } from "@material-tailwind/react";
 import { MenuItem } from "@material-tailwind/react";
 import { deleteFreeBoard } from "actions/free_boards-actions";
 import { useRouter } from "next/navigation";
+import { Dialog } from "@material-tailwind/react";
+import { DialogHeader } from "@material-tailwind/react";
+import { DialogBody } from "@material-tailwind/react";
+import { DialogFooter } from "@material-tailwind/react";
+import { Textarea } from "@material-tailwind/react";
+import { Input } from "@material-tailwind/react";
+import Link from "next/link";
 
 interface PostContentProps {
 	post: Post;
@@ -208,140 +215,239 @@ export default function PostContent({ post, detail = false }: PostContentProps) 
 		}
 	};
 
+	/* 수정팝업창 */
+	const [open, setOpen] = useState(false);
+	// 수정 팝업창 열기 함수
+	const openModal = (e) => {
+		if (e) {
+			e.preventDefault();
+			e.stopPropagation();
+		}
+		setOpen(true);
+	};
+
+	// 수정 팝업창 닫기 함수
+	const closeModal = (e) => {
+		if (e) {
+			e.preventDefault();
+			e.stopPropagation();
+		}
+		setOpen(false);
+	};
+
+	// MenuItem에서 호출할 함수
+	const handleEditClick = (e) => {
+		e.preventDefault();
+		e.stopPropagation();
+		openModal(e);
+	};
+
 	return (
-		<article className="bg-[#17222D] p-4 border border-[#384D63] rounded-lg text-[#688DB2]">
-			{/* 상단 */}
-			<div className="flex items-center gap-2 mb-5 justify-between">
-				<div className="w-[50px] h-[50px] bg-[#384D63] rounded-full overflow-hidden">
-					{post.author_profile_image.indexOf("profile_default_sd") !== -1 ? (
-						<img
-							src={post.author_profile_image}
-							alt="user"
-							className="object-none object-[50%_35%]"
-						/>
-					) : (
-						<img
-							src={post.author_profile_image}
-							alt="user"
-							className="w-full h-full object-cover"
-						/>
-					)}
-				</div>
-				<div className="flex-1">
-					<Typography
-						variant="h5"
-						className="mb-1"
-						style={{ color: "#F0F3FF", lineHeight: "1" }}
+		<>
+			<Link key={post.id} href={`/post/${post.id}`}>
+				<article className="bg-[#17222D] p-4 border border-[#384D63] rounded-lg text-[#688DB2]">
+					{/* 상단 */}
+					<div className="flex items-center gap-2 mb-5 justify-between">
+						<div className="w-[50px] h-[50px] bg-[#384D63] rounded-full overflow-hidden">
+							{post.author_profile_image.indexOf("profile_default_sd") !== -1 ? (
+								<img
+									src={post.author_profile_image}
+									alt="user"
+									className="object-none object-[50%_35%]"
+								/>
+							) : (
+								<img
+									src={post.author_profile_image}
+									alt="user"
+									className="w-full h-full object-cover"
+								/>
+							)}
+						</div>
+						<div className="flex-1">
+							<Typography
+								variant="h5"
+								className="mb-1"
+								style={{ color: "#F0F3FF", lineHeight: "1" }}
+							>
+								{post.author_nickname}
+							</Typography>
+							<Typography variant="small">{formattedDate}</Typography>
+						</div>
+						{/* 현재 사용자가 게시물 작성자인 경우에만 메뉴 버튼 표시 */}
+						{user?.id === post.author_id && (
+							<Menu placement="bottom-end">
+								<MenuHandler>
+									<IconButton
+										color="white"
+										size="sm"
+										variant="text"
+										onClickCapture={(e) => {
+											// 캡처 단계에서 이벤트 처리
+											e.preventDefault();
+											e.stopPropagation();
+										}}
+									>
+										<svg
+											width="32"
+											height="32"
+											viewBox="0 0 23 23"
+											fill="none"
+											xmlns="http://www.w3.org/2000/svg"
+										>
+											<path
+												d="M17.7306 12.6734C16.8942 12.6916 16.2033 12.0188 16.2397 11.1825C16.2033 10.3825 16.8942 9.70972 17.7306 9.7279C18.5124 9.70972 19.2033 10.3825 19.2215 11.1825C19.2033 12.0188 18.5124 12.6916 17.7306 12.6734Z"
+												fill="#F7F7F8"
+											></path>
+											<path
+												d="M11.8009 12.6734C10.9645 12.6916 10.2736 12.0188 10.31 11.1825C10.2736 10.3825 10.9645 9.70972 11.8009 9.7279C12.5827 9.70972 13.2736 10.3825 13.2918 11.1825C13.2736 12.0188 12.5827 12.6916 11.8009 12.6734Z"
+												fill="#F7F7F8"
+											></path>
+											<path
+												d="M5.87121 12.6734C5.03483 12.6916 4.34392 12.0188 4.38028 11.1825C4.34392 10.3825 5.03483 9.70972 5.87121 9.7279C6.65304 9.70972 7.34396 10.3825 7.36214 11.1825C7.34396 12.0188 6.65304 12.6916 5.87121 12.6734Z"
+												fill="#F7F7F8"
+											></path>
+										</svg>
+									</IconButton>
+								</MenuHandler>
+								<MenuList className="bg-[#1C2936] p-2 min-w-[90px] border-[#384D63] text-[#fff]">
+									<MenuItem onClick={handleEditClick}>수정하기</MenuItem>
+									<MenuItem
+										onClick={handleDeletePost}
+										disabled={deleteMutation.isPending}
+									>
+										삭제하기
+									</MenuItem>
+								</MenuList>
+							</Menu>
+						)}
+					</div>
+					{/* 내용 */}
+					<div className="px-2 border-b border-[#384D63] pb-5 mb-3">
+						<Typography className="mb-1" variant="h5" style={{ color: "#fff" }}>
+							{post.title}
+						</Typography>
+
+						{/*content*/}
+						<Typography
+							variant="paragraph"
+							as="div"
+							style={{
+								color: "#fff",
+								overflow: "hidden",
+								display: "-webkit-box",
+								WebkitBoxOrient: "vertical",
+								WebkitLineClamp: detail ? "none" : 5, // 5줄 제한
+							}}
+							dangerouslySetInnerHTML={{ __html: sanitizedContent }}
+						></Typography>
+					</div>
+					{/* 댓글,추천수 */}
+					<div className="flex items-center gap-1">
+						<Button
+							variant="text"
+							color="white"
+							className="flex items-center gap-2 px-2"
+							size="sm"
+						>
+							<ChatBubbleOutlineOutlinedIcon className="w-6 h-6" />
+							<Typography variant="paragraph">{post.comments_count}</Typography>
+						</Button>
+						<Button
+							variant="text"
+							color="white"
+							className={`flex items-center gap-2 px-2 ${
+								isLiked ? "text-[#15F5BA]" : ""
+							}`}
+							size="sm"
+							onClick={(e) => {
+								e.preventDefault(); // 링크의 기본 동작 방지
+								e.stopPropagation();
+
+								// 로그인 확인
+								if (!user?.id) {
+									alert("좋아요를 누르려면 로그인이 필요합니다.");
+									return;
+								}
+
+								mutation.mutate();
+							}}
+						>
+							{/* 좋아요 상태에 따라 다른 아이콘 표시 */}
+							{isLiked ? (
+								<ThumbUpOutlinedIcon className="w-6 h-6 relative top-[-1px]" />
+							) : (
+								<ThumbUpOutlinedIcon className="w-6 h-6 relative top-[-1px]" />
+							)}
+							<Typography variant="paragraph">{post.like_count}</Typography>
+						</Button>
+					</div>
+				</article>
+			</Link>
+			<Dialog
+				open={open}
+				size="xs"
+				className="bg-[#17222D] border border-[#384D63] z-[9999]"
+				dismiss={{ outsidePress: false, escapeKey: false }}
+				onClick={(e) => {
+					e.preventDefault();
+					e.stopPropagation();
+				}}
+			>
+				<div className="flex justify-end px-4 py-3" onClick={(e) => e.stopPropagation()}>
+					<IconButton
+						color="white"
+						size="sm"
+						variant="text"
+						onClick={(e) => {
+							// 수정 로직 구현
+							closeModal(e);
+						}}
 					>
-						{post.author_nickname}
-					</Typography>
-					<Typography variant="small">{formattedDate}</Typography>
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							fill="none"
+							viewBox="0 0 24 24"
+							stroke="currentColor"
+							strokeWidth={2}
+							className="h-5 w-5"
+						>
+							<path
+								strokeLinecap="round"
+								strokeLinejoin="round"
+								d="M6 18L18 6M6 6l12 12"
+							/>
+						</svg>
+					</IconButton>
 				</div>
-				{/* 현재 사용자가 게시물 작성자인 경우에만 메뉴 버튼 표시 */}
-				{user?.id === post.author_id && (
-					<Menu placement="bottom-end">
-						<MenuHandler>
-							<IconButton
-								color="white"
-								size="sm"
-								variant="text"
-								onClickCapture={(e) => {
-									// 캡처 단계에서 이벤트 처리
-									e.preventDefault();
-									e.stopPropagation();
-								}}
-							>
-								<svg
-									width="32"
-									height="32"
-									viewBox="0 0 23 23"
-									fill="none"
-									xmlns="http://www.w3.org/2000/svg"
-								>
-									<path
-										d="M17.7306 12.6734C16.8942 12.6916 16.2033 12.0188 16.2397 11.1825C16.2033 10.3825 16.8942 9.70972 17.7306 9.7279C18.5124 9.70972 19.2033 10.3825 19.2215 11.1825C19.2033 12.0188 18.5124 12.6916 17.7306 12.6734Z"
-										fill="#F7F7F8"
-									></path>
-									<path
-										d="M11.8009 12.6734C10.9645 12.6916 10.2736 12.0188 10.31 11.1825C10.2736 10.3825 10.9645 9.70972 11.8009 9.7279C12.5827 9.70972 13.2736 10.3825 13.2918 11.1825C13.2736 12.0188 12.5827 12.6916 11.8009 12.6734Z"
-										fill="#F7F7F8"
-									></path>
-									<path
-										d="M5.87121 12.6734C5.03483 12.6916 4.34392 12.0188 4.38028 11.1825C4.34392 10.3825 5.03483 9.70972 5.87121 9.7279C6.65304 9.70972 7.34396 10.3825 7.36214 11.1825C7.34396 12.0188 6.65304 12.6916 5.87121 12.6734Z"
-										fill="#F7F7F8"
-									></path>
-								</svg>
-							</IconButton>
-						</MenuHandler>
-						<MenuList className="bg-[#1C2936] p-0 min-w-[100px] border-[#384D63] text-[#fff]">
-							<MenuItem
-								onClick={handleDeletePost}
-								disabled={deleteMutation.isPending}
-							>
-								삭제하기
-							</MenuItem>
-						</MenuList>
-					</Menu>
-				)}
-			</div>
-			{/* 내용 */}
-			<div className="px-2 border-b border-[#384D63] pb-5 mb-3">
-				<Typography className="mb-1" variant="h5" style={{ color: "#fff" }}>
-					{post.title}
-				</Typography>
-
-				{/*content*/}
-				<Typography
-					variant="paragraph"
-					as="div"
-					style={{
-						color: "#fff",
-						overflow: "hidden",
-						display: "-webkit-box",
-						WebkitBoxOrient: "vertical",
-						WebkitLineClamp: detail ? "none" : 5, // 5줄 제한
-					}}
-					dangerouslySetInnerHTML={{ __html: sanitizedContent }}
-				></Typography>
-			</div>
-			{/* 댓글,추천수 */}
-			<div className="flex items-center gap-1">
-				<Button
-					variant="text"
-					color="white"
-					className="flex items-center gap-2 px-2"
-					size="sm"
-				>
-					<ChatBubbleOutlineOutlinedIcon className="w-6 h-6" />
-					<Typography variant="paragraph">{post.comments_count}</Typography>
-				</Button>
-				<Button
-					variant="text"
-					color="white"
-					className={`flex items-center gap-2 px-2 ${isLiked ? "text-[#15F5BA]" : ""}`}
-					size="sm"
-					onClick={(e) => {
-						e.preventDefault(); // 링크의 기본 동작 방지
-						e.stopPropagation();
-
-						// 로그인 확인
-						if (!user?.id) {
-							alert("좋아요를 누르려면 로그인이 필요합니다.");
-							return;
-						}
-
-						mutation.mutate();
-					}}
-				>
-					{/* 좋아요 상태에 따라 다른 아이콘 표시 */}
-					{isLiked ? (
-						<ThumbUpOutlinedIcon className="w-6 h-6 relative top-[-1px]" />
-					) : (
-						<ThumbUpOutlinedIcon className="w-6 h-6 relative top-[-1px]" />
-					)}
-					<Typography variant="paragraph">{post.like_count}</Typography>
-				</Button>
-			</div>
-		</article>
+				<DialogBody>
+					<div className="grid gap-6">
+						<Textarea color="white" label="Message" />
+					</div>
+				</DialogBody>
+				<DialogFooter className="space-x-2">
+					<Button
+						variant="text"
+						color="white"
+						onClick={(e) => {
+							// 수정 로직 구현
+							closeModal(e);
+						}}
+					>
+						취소하기
+					</Button>
+					<Button
+						className="bg-[#15F5BA] text-[#261E5A]"
+						variant="gradient"
+						color="white"
+						onClick={(e) => {
+							// 수정 로직 구현
+							closeModal(e);
+						}}
+					>
+						등록하기
+					</Button>
+				</DialogFooter>
+			</Dialog>
+		</>
 	);
 }

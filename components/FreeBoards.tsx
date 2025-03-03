@@ -36,9 +36,7 @@ export default function FreeBoards() {
 				</>
 			)}
 			{freeBoardsQuery.data?.map((post) => (
-				<Link key={post.id} href={`/post/${post.id}`}>
-					<PostContent post={post as Post} />
-				</Link>
+				<PostContent post={post as Post} />
 			))}
 		</>
 	);
