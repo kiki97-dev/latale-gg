@@ -30,7 +30,7 @@ export default function PostDetail({ postId }) {
 		queryFn: () => getCommentsByPostId(postId),
 		staleTime: 1000 * 60 * 1,
 		refetchOnWindowFocus: false,
-		refetchOnMount: false,
+		refetchOnMount: true,
 	});
 
 	// 게시글 데이터가 변경될 때 게시글 목록 캐시도 업데이트

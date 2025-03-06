@@ -2,7 +2,6 @@
 import { Typography } from "@material-tailwind/react";
 import ChatBubbleOutlineOutlinedIcon from "@mui/icons-material/ChatBubbleOutlineOutlined";
 import ThumbUpOutlinedIcon from "@mui/icons-material/ThumbUpOutlined";
-import ThumbUpIcon from "@mui/icons-material/ThumbUp"; // 채워진 좋아요 아이콘 추가
 import { Button } from "@material-tailwind/react";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
@@ -21,12 +20,6 @@ import { MenuList } from "@material-tailwind/react";
 import { MenuItem } from "@material-tailwind/react";
 import { deleteFreeBoard } from "actions/free_boards-actions";
 import { useRouter } from "next/navigation";
-import { Dialog } from "@material-tailwind/react";
-import { DialogHeader } from "@material-tailwind/react";
-import { DialogBody } from "@material-tailwind/react";
-import { DialogFooter } from "@material-tailwind/react";
-import { Textarea } from "@material-tailwind/react";
-import { Input } from "@material-tailwind/react";
 import Link from "next/link";
 import UpdateContentModal from "./UpdateContentModal";
 
@@ -384,7 +377,12 @@ export default function PostContent({ post, detail = false }: PostContentProps) 
 					</div>
 				</article>
 			</Link>
-			<UpdateContentModal closeModal={closeModal} open={open} />
+			<UpdateContentModal
+				closeModal={closeModal}
+				open={open}
+				post={post}
+				formattedDate={formattedDate}
+			/>
 		</>
 	);
 }

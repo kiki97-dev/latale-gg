@@ -1,11 +1,26 @@
 import { DialogBody } from "@material-tailwind/react";
 import { Button } from "@material-tailwind/react";
-import { Textarea } from "@material-tailwind/react";
+import { Typography } from "@material-tailwind/react";
 import { DialogFooter } from "@material-tailwind/react";
 import { IconButton } from "@material-tailwind/react";
 import { Dialog } from "@material-tailwind/react";
+import { useQueryClient } from "@tanstack/react-query";
+import { useRef, useState } from "react";
+import ReactQuill from "react-quill";
 
-export default function UpdateContentModal({ closeModal, open }) {
+export default function UpdateContentModal({ closeModal, open, post, formattedDate }) {
+	const [title, setTitle] = useState(post.title);
+	const [content, setContent] = useState(post.content); // 퀼 에디터에서 관리하는 내용
+
+	const quillRef = useRef<ReactQuill | null>(null); // ReactQuill에 대한 ref 설정
+	// QueryClient 인스턴스 가져오기
+	const queryClient = useQueryClient();
+
+	// 퀼 에디터에서 내용 변경 처리
+	const handleContentChange = (value: string) => {
+		setContent(value);
+	};
+
 	return (
 		<Dialog
 			open={open}
@@ -17,8 +32,34 @@ export default function UpdateContentModal({ closeModal, open }) {
 				e.stopPropagation();
 			}}
 		>
-			<div className="flex justify-end px-4 py-3" onClick={(e) => e.stopPropagation()}>
+			<div className="flex items-center p-4 gap-3 pb-0" onClick={(e) => e.stopPropagation()}>
+				<div className="w-[50px] h-[50px] bg-[#384D63] rounded-full overflow-hidden">
+					{post.author_profile_image.indexOf("profile_default_sd") !== -1 ? (
+						<img
+							src={post.author_profile_image}
+							alt="user"
+							className="object-none object-[50%_35%]"
+						/>
+					) : (
+						<img
+							src={post.author_profile_image}
+							alt="user"
+							className="w-full h-full object-cover"
+						/>
+					)}
+				</div>
+				<div className="flex-1">
+					<Typography
+						variant="h5"
+						className="mt-2 mb-1"
+						style={{ color: "#F0F3FF", lineHeight: "1" }}
+					>
+						{post.author_nickname}
+					</Typography>
+					<Typography variant="small">{formattedDate}</Typography>
+				</div>
 				<IconButton
+					className="self-start"
 					color="white"
 					size="sm"
 					variant="text"
@@ -44,12 +85,30 @@ export default function UpdateContentModal({ closeModal, open }) {
 				</IconButton>
 			</div>
 			<DialogBody>
-				<div className="grid gap-6">
-					<Textarea color="white" label="Message" />
+				<div className="border border-[#384D63] p-4 rounded-lg max-h-[500px] overflow-y-auto">
+					<input
+						type="text"
+						placeholder="제목을 입력해 주세요"
+						value={title}
+						onChange={(e) => setTitle(e.target.value)}
+						className="w-full border-b outline-none bg-transparent text-[#fff] placeholder:text-[#688DB2] text-xl font-semibold border-none placeholder:opacity-100 mb-2"
+					/>
+					<ReactQuill
+						theme="snow"
+						placeholder="오늘의 생각을 공유해보세요!"
+						ref={quillRef} // ReactQuill에 ref 전달
+						value={content}
+						onChange={handleContentChange}
+						className="w-full rounded-lg resize-none bg-transparent text-[#fff] placeholder:text-[#688DB2] placeholder:opacity-100 outline-none font-light border-none"
+						style={{
+							fontFamily: "inherit", // 기본 글꼴 설정
+						}}
+					/>
 				</div>
 			</DialogBody>
 			<DialogFooter className="space-x-2">
 				<Button
+					className="text-sm"
 					variant="text"
 					color="white"
 					onClick={(e) => {
@@ -60,7 +119,7 @@ export default function UpdateContentModal({ closeModal, open }) {
 					취소하기
 				</Button>
 				<Button
-					className="bg-[#15F5BA] text-[#261E5A]"
+					className="bg-[#15F5BA] text-[#261E5A] text-sm"
 					variant="gradient"
 					color="white"
 					onClick={(e) => {

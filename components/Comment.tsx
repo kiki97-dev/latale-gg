@@ -11,7 +11,7 @@ export default function Comment({ comment }) {
 		<>
 			<div className="flex  gap-3 mt-3">
 				<div className="w-[50px] h-[50px] bg-[#384D63] rounded-full overflow-hidden">
-					{comment.profile_image.indexOf("profile_default_sd") !== -1 ? (
+					{comment.profile_image?.indexOf("profile_default_sd") !== -1 ? (
 						<img
 							src={comment.profile_image}
 							alt="user"
