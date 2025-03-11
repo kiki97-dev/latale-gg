@@ -1,3 +1,4 @@
+"use client";
 import { Button } from "@material-tailwind/react";
 import { Typography } from "@material-tailwind/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";

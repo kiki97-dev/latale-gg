@@ -1,3 +1,4 @@
+"use client";
 import { DialogBody } from "@material-tailwind/react";
 import { Button } from "@material-tailwind/react";
 import { Typography } from "@material-tailwind/react";
@@ -7,8 +8,11 @@ import { Dialog } from "@material-tailwind/react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useRef, useState } from "react";
 import ReactQuill from "react-quill";
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
 
-export default function UpdateContentModal({ closeModal, open, post, formattedDate }) {
+export default function UpdateContentModal({ closeModal, open, post }) {
 	const [title, setTitle] = useState(post.title);
 	const [content, setContent] = useState(post.content); // 퀼 에디터에서 관리하는 내용
 
@@ -20,6 +24,13 @@ export default function UpdateContentModal({ closeModal, open, post, formattedDa
 	const handleContentChange = (value: string) => {
 		setContent(value);
 	};
+
+	dayjs.extend(utc);
+	dayjs.extend(timezone);
+	const formattedDate = dayjs
+		.utc(post.created_at)
+		.tz("Asia/Seoul")
+		.format("YYYY년 MM월 DD일 HH:mm");
 
 	return (
 		<Dialog

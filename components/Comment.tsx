@@ -1,3 +1,4 @@
+"use client";
 import { Typography } from "@material-tailwind/react";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";

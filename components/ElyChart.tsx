@@ -1,3 +1,4 @@
+"use client";
 import { Card, CardBody, CardHeader, Typography } from "@material-tailwind/react";
 
 // If you're using Next.js please use the dynamic import for react-apexcharts and remove the import from the top for the react-apexcharts

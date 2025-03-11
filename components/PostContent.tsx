@@ -9,7 +9,7 @@ import timezone from "dayjs/plugin/timezone";
 import sanitizeHtml from "sanitize-html";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toggleLike } from "actions/like-actions";
-import { useRecoilValue } from "recoil";
+import { useRecoilValue, useSetRecoilState } from "recoil";
 import { userInfo } from "store/userState";
 import { useState, useEffect } from "react";
 import { Post } from "types/post";
@@ -21,7 +21,7 @@ import { MenuItem } from "@material-tailwind/react";
 import { deleteFreeBoard } from "actions/free_boards-actions";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import UpdateContentModal from "./UpdateContentModal";
+import { currentPostState, modalOpenState } from "store/updateContentModalState";
 
 interface PostContentProps {
 	post: Post;
@@ -209,31 +209,20 @@ export default function PostContent({ post, detail = false }: PostContentProps) 
 		}
 	};
 
-	/* 수정팝업창 */
-	const [open, setOpen] = useState(false);
-	// 수정 팝업창 열기 함수
-	const openModal = (e) => {
-		if (e) {
-			e.preventDefault();
-			e.stopPropagation();
-		}
-		setOpen(true);
-	};
+	const setCurrentPost = useSetRecoilState(currentPostState);
+	const setModalOpen = useSetRecoilState(modalOpenState);
 
-	// 수정 팝업창 닫기 함수
-	const closeModal = (e) => {
-		if (e) {
-			e.preventDefault();
-			e.stopPropagation();
-		}
-		setOpen(false);
-	};
-
-	// MenuItem에서 호출할 함수
 	const handleEditClick = (e) => {
 		e.preventDefault();
 		e.stopPropagation();
-		openModal(e);
+
+		// 먼저 현재 post 정보를 설정하고
+		setCurrentPost({
+			...post,
+		});
+
+		// 그 다음 모달 열기
+		setModalOpen(true);
 	};
 
 	return (
@@ -377,12 +366,6 @@ export default function PostContent({ post, detail = false }: PostContentProps) 
 					</div>
 				</article>
 			</Link>
-			<UpdateContentModal
-				closeModal={closeModal}
-				open={open}
-				post={post}
-				formattedDate={formattedDate}
-			/>
 		</>
 	);
 }
