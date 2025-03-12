@@ -31,7 +31,7 @@ export default function UpdateContentModal({ closeModal, open, post }) {
 		},
 		onSuccess: () => {
 			// ✅ free_boards 쿼리 무효화 → 최신 데이터 불러옴
-			queryClient.invalidateQueries({ queryKey: ["free_boards", post.id] });
+			queryClient.invalidateQueries({ queryKey: ["free_boards"] });
 		},
 		onSettled: () => {
 			closeModal();
