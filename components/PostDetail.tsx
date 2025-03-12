@@ -19,7 +19,7 @@ export default function PostDetail({ postId }) {
 	const queryClient = useQueryClient(); // QueryClient 추가
 
 	const { data: post, isLoading: isLoadingPost } = useQuery({
-		queryKey: ["free_board", postId],
+		queryKey: ["free_boards", postId],
 		queryFn: () => getFreeBoardById(postId),
 		initialData: cachedPost || undefined,
 		refetchOnWindowFocus: false,
@@ -37,7 +37,7 @@ export default function PostDetail({ postId }) {
 	useEffect(() => {
 		if (post) {
 			// 게시글 목록의 해당 게시글도 업데이트
-			queryClient.setQueriesData({ queryKey: ["free_boards"] }, (oldData: any) => {
+			queryClient.setQueryData(["free_boards"], (oldData: Post[] | undefined) => {
 				if (!oldData) return oldData;
 				return oldData.map((item: Post) =>
 					item.id === post.id ? { ...item, ...post } : item

@@ -66,7 +66,7 @@ export default function PostContent({ post, detail = false }: PostContentProps) 
 		// 낙관적 업데이트 적용 - 즉시 UI 반영
 		onMutate: async () => {
 			// 이전 데이터 백업
-			const previousData = queryClient.getQueryData<Post>(["free_board", post.id]);
+			const previousData = queryClient.getQueryData<Post>(["free_boards", post.id]);
 			const previousBoardsData = queryClient.getQueryData(["free_boards"]);
 
 			// 새로운 좋아요 상태 계산
@@ -80,7 +80,7 @@ export default function PostContent({ post, detail = false }: PostContentProps) 
 
 			// 1. 단일 게시글 캐시 업데이트
 			if (previousData) {
-				queryClient.setQueryData(["free_board", post.id], {
+				queryClient.setQueryData(["free_boards", post.id], {
 					...previousData,
 					is_liked: newIsLiked,
 					like_count: newLikeCount,
@@ -88,8 +88,10 @@ export default function PostContent({ post, detail = false }: PostContentProps) 
 			}
 
 			// 2. 게시글 목록 캐시 업데이트
-			queryClient.setQueriesData({ queryKey: ["free_boards"] }, (oldData: any) => {
+			queryClient.setQueryData(["free_boards"], (oldData: Post[] | undefined) => {
 				if (!oldData) return oldData;
+				if (!Array.isArray(oldData)) return oldData; // 배열 타입 체크 추가
+
 				return oldData.map((item: Post) =>
 					item.id === post.id
 						? {
@@ -103,19 +105,22 @@ export default function PostContent({ post, detail = false }: PostContentProps) 
 
 			return { previousData, previousBoardsData };
 		},
+
 		// 오류 발생 시 롤백
 		onError: (error, _, context) => {
 			console.error("좋아요 처리 중 오류 발생:", error);
 			setIsLiked(!!context?.previousData?.is_liked);
 
 			if (context?.previousData) {
-				queryClient.setQueryData(["free_board", post.id], context.previousData);
+				// free_board → free_boards로 수정
+				queryClient.setQueryData(["free_boards", post.id], context.previousData);
 			}
 
 			if (context?.previousBoardsData) {
 				queryClient.setQueryData(["free_boards"], context.previousBoardsData);
 			}
 		},
+
 		// 성공 시 최신 데이터로 캐시 갱신
 		onSuccess: async (resultIsLiked) => {
 			// 서버 응답 기반으로 상태 확인
@@ -124,7 +129,7 @@ export default function PostContent({ post, detail = false }: PostContentProps) 
 			// 필요한 경우 캐시 갱신 (이미 낙관적 업데이트로 UI는 변경됨)
 			await queryClient.refetchQueries({
 				queryKey: ["free_boards"],
-				exact: true,
+				exact: false, // 모든 자유게시판 관련 쿼리 새로고침
 			});
 		},
 	});
@@ -147,15 +152,17 @@ export default function PostContent({ post, detail = false }: PostContentProps) 
 		// 낙관적 업데이트 적용
 		onMutate: async () => {
 			// 이전 데이터 백업
-			const previousData = queryClient.getQueryData<Post>(["free_board", post.id]);
+			const previousData = queryClient.getQueryData<Post>(["free_boards", post.id]);
 			const previousBoardsData = queryClient.getQueryData(["free_boards"]);
 
 			// 1. 단일 게시글 캐시에서 제거
-			queryClient.removeQueries({ queryKey: ["free_board", post.id] });
+			queryClient.removeQueries({ queryKey: ["free_boards", post.id] });
 
 			// 2. 게시글 목록 캐시 업데이트 - 해당 게시글 제거
-			queryClient.setQueriesData({ queryKey: ["free_boards"] }, (oldData: any) => {
+			queryClient.setQueryData(["free_boards"], (oldData: Post[] | undefined) => {
 				if (!oldData) return oldData;
+				if (!Array.isArray(oldData)) return oldData; // 배열 타입 체크 추가
+
 				return oldData.filter((item: Post) => item.id !== post.id);
 			});
 
@@ -169,7 +176,7 @@ export default function PostContent({ post, detail = false }: PostContentProps) 
 
 			// 롤백 처리
 			if (context?.previousData) {
-				queryClient.setQueryData(["free_board", post.id], context.previousData);
+				queryClient.setQueryData(["free_boards", post.id], context.previousData);
 			}
 
 			if (context?.previousBoardsData) {
@@ -185,12 +192,12 @@ export default function PostContent({ post, detail = false }: PostContentProps) 
 			// 필요한 경우 캐시 갱신
 			await queryClient.refetchQueries({
 				queryKey: ["free_boards"],
-				exact: true,
+				exact: false,
 			});
 
 			// 상세 페이지에서 삭제한 경우 목록으로 이동
 			if (detail) {
-				router.push("/boards/free"); // 적절한 경로로 수정하세요
+				router.push("/boards/free");
 			}
 		},
 	});

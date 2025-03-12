@@ -5,7 +5,6 @@ import { getFreeBoards } from "actions/free_boards-actions";
 import PostContent from "./PostContent";
 import { useSetRecoilState } from "recoil";
 import { freeBoardsState } from "store/freeBoardState";
-import Link from "next/link";
 import { useEffect } from "react";
 import PostContentSkeleton from "./PostContentSkeleton";
 import { Post } from "types/post";
