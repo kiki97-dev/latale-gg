@@ -39,8 +39,8 @@ export default function CommentInput({ postId }) {
 			// ✅ 댓글 목록 쿼리 무효화 → 최신 댓글 데이터 불러옴
 			queryClient.invalidateQueries({ queryKey: ["comments", postId] });
 
-			// ✅ 캐시된 `free_board` 데이터를 직접 수정 → comments_count 증가 반영
-			queryClient.setQueryData(["free_board", postId], (oldData: any) => {
+			// ✅ 캐시된 `free_boards` 데이터를 직접 수정 → comments_count 증가 반영
+			queryClient.setQueryData(["free_boards", postId], (oldData: any) => {
 				if (!oldData) return oldData;
 				return {
 					...oldData,

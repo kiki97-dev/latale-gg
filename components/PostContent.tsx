@@ -49,6 +49,7 @@ export default function PostContent({ post, detail = false }: PostContentProps) 
 
 	// 초기 좋아요 상태를 서버에서 받은 is_liked로 설정
 	const [isLiked, setIsLiked] = useState(post.is_liked || false);
+	const [isLikeLoading, setIsLikeLoading] = useState(false); // 좋아요 로딩 상태 추가
 
 	// post.is_liked가 변경되면 상태 업데이트 (이 부분이 중요)
 	useEffect(() => {
@@ -65,6 +66,9 @@ export default function PostContent({ post, detail = false }: PostContentProps) 
 		},
 		// 낙관적 업데이트 적용 - 즉시 UI 반영
 		onMutate: async () => {
+			// 로딩 상태 설정
+			setIsLikeLoading(true);
+
 			// 이전 데이터 백업
 			const previousData = queryClient.getQueryData<Post>(["free_boards", post.id]);
 			const previousBoardsData = queryClient.getQueryData(["free_boards"]);
@@ -112,13 +116,15 @@ export default function PostContent({ post, detail = false }: PostContentProps) 
 			setIsLiked(!!context?.previousData?.is_liked);
 
 			if (context?.previousData) {
-				// free_board → free_boards로 수정
 				queryClient.setQueryData(["free_boards", post.id], context.previousData);
 			}
 
 			if (context?.previousBoardsData) {
 				queryClient.setQueryData(["free_boards"], context.previousBoardsData);
 			}
+
+			// 로딩 상태 해제
+			setIsLikeLoading(false);
 		},
 
 		// 성공 시 최신 데이터로 캐시 갱신
@@ -131,6 +137,13 @@ export default function PostContent({ post, detail = false }: PostContentProps) 
 				queryKey: ["free_boards"],
 				exact: false, // 모든 자유게시판 관련 쿼리 새로고침
 			});
+
+			// 로딩 상태 해제
+			setIsLikeLoading(false);
+		},
+		// 모든 경우에 대해 로딩 상태 해제 보장
+		onSettled: () => {
+			setIsLikeLoading(false);
 		},
 	});
 
@@ -343,6 +356,7 @@ export default function PostContent({ post, detail = false }: PostContentProps) 
 							<Typography variant="paragraph">{post.comments_count}</Typography>
 						</Button>
 						<Button
+							disabled={isLikeLoading}
 							variant="text"
 							color="white"
 							className={`flex items-center gap-2 px-2 ${
@@ -356,6 +370,11 @@ export default function PostContent({ post, detail = false }: PostContentProps) 
 								// 로그인 확인
 								if (!user?.id) {
 									alert("좋아요를 누르려면 로그인이 필요합니다.");
+									return;
+								}
+
+								// 이미 요청 중이면 중복 클릭 방지
+								if (isLikeLoading) {
 									return;
 								}
 
