@@ -8,6 +8,7 @@ function handleError(error) {
 	throw new Error(error.message);
 }
 
+/* 로그인한 유저가 로그인 누른 게시물인지 체크 */
 async function getUserLikeStatus(userId: string, postId: number) {
 	const supabase = await createServerSupabaseClient();
 	const { data: likeData, error: likesError } = await supabase
@@ -24,7 +25,7 @@ async function getUserLikeStatus(userId: string, postId: number) {
 	return !!likeData;
 }
 
-// 전체 게시글 불러오기
+// 자유게시판 전체 게시글 불러오기
 export async function getFreeBoards(): Promise<FreeBoardsRow[]> {
 	const supabase = await createServerSupabaseClient();
 	const { data: session } = await supabase.auth.getSession();
@@ -54,6 +55,7 @@ export async function getFreeBoards(): Promise<FreeBoardsRow[]> {
 	}));
 }
 
+/* 자유게시판 특정 글 불러오기 */
 export async function getFreeBoardById(id: number): Promise<FreeBoardsRow | null> {
 	const supabase = await createServerSupabaseClient();
 	const { data: session } = await supabase.auth.getSession();
@@ -84,6 +86,7 @@ export async function getFreeBoardById(id: number): Promise<FreeBoardsRow | null
 	};
 }
 
+/* 자유게시판 글 작성 */
 export async function createFreeBoard(
 	title: string,
 	content: string,
@@ -102,6 +105,7 @@ export async function createFreeBoard(
 	return data ?? ({} as FreeBoardsRow);
 }
 
+/* 자유게시판 글 삭제 */
 export async function deleteFreeBoard(postId: number, userId: string): Promise<boolean> {
 	const supabase = await createServerSupabaseClient();
 
@@ -133,4 +137,68 @@ export async function deleteFreeBoard(postId: number, userId: string): Promise<b
 	}
 
 	return true; // 삭제 성공
+}
+
+/* 자유게시판 글 수정 */
+export async function updateFreeBoard(
+	postId: number,
+	title: string,
+	content: string,
+	userId: string
+): Promise<FreeBoardsRow> {
+	const supabase = await createServerSupabaseClient();
+
+	// 먼저 게시글이 사용자의 것인지 확인
+	const { data: post, error: fetchError } = await supabase
+		.from("free_boards")
+		.select("author_id")
+		.eq("id", postId)
+		.maybeSingle();
+
+	if (fetchError) {
+		console.error(fetchError);
+		throw new Error(fetchError.message);
+	}
+
+	// 게시글이 없거나 작성자가 아니면 권한 오류
+	if (!post) {
+		throw new Error("게시글을 찾을 수 없습니다");
+	}
+
+	if (post.author_id !== userId) {
+		throw new Error("본인이 작성한 글만 수정할 수 있습니다");
+	}
+
+	// 게시글 수정
+	const { data, error: updateError } = await supabase
+		.from("free_boards")
+		.update({ title, content, updated_at: new Date().toISOString() })
+		.eq("id", postId)
+		.select("*")
+		.single();
+
+	if (updateError) {
+		console.error(updateError);
+		throw new Error(updateError.message);
+	}
+
+	// 수정된 게시글 데이터 가져오기 (좋아요 정보 포함)
+	const { data: updatedPost, error: selectError } = await supabase
+		.from("free_boards_with_user_info")
+		.select("*")
+		.eq("id", postId)
+		.maybeSingle();
+
+	if (selectError) {
+		console.error(selectError);
+		throw new Error(selectError.message);
+	}
+
+	// 좋아요 상태 확인
+	const isLiked = await getUserLikeStatus(userId, postId);
+
+	return {
+		...updatedPost,
+		is_liked: isLiked,
+	} as FreeBoardsRow;
 }

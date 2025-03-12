@@ -5,14 +5,17 @@ import { Typography } from "@material-tailwind/react";
 import { DialogFooter } from "@material-tailwind/react";
 import { IconButton } from "@material-tailwind/react";
 import { Dialog } from "@material-tailwind/react";
-import { useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRef, useState } from "react";
 import ReactQuill from "react-quill";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
+import { updateFreeBoard } from "actions/free_boards-actions";
+import toast from "react-hot-toast";
 
 export default function UpdateContentModal({ closeModal, open, post }) {
+	const [isSubmitting, setIsSubmitting] = useState(false); // ✅ 중복 요청 방지용 상태
 	const [title, setTitle] = useState(post.title);
 	const [content, setContent] = useState(post.content); // 퀼 에디터에서 관리하는 내용
 
@@ -20,10 +23,31 @@ export default function UpdateContentModal({ closeModal, open, post }) {
 	// QueryClient 인스턴스 가져오기
 	const queryClient = useQueryClient();
 
+	//글 업데이트
+	const updatePostMutation = useMutation({
+		mutationFn: () => updateFreeBoard(post.id, title, content, post.author_id),
+		onMutate: () => {
+			setIsSubmitting(true); // ✅ 요청 시작 시 isSubmitting 활성화
+		},
+		onSuccess: () => {
+			// ✅ free_boards 쿼리 무효화 → 최신 데이터 불러옴
+			queryClient.invalidateQueries({ queryKey: ["free_boards", post.id] });
+		},
+		onSettled: () => {
+			closeModal();
+			setIsSubmitting(false); // ✅ 요청 완료 후 다시 활성화
+		},
+	});
+
 	// 퀼 에디터에서 내용 변경 처리
 	const handleContentChange = (value: string) => {
 		setContent(value);
 	};
+
+	function stripHtml(html: string) {
+		const doc = new DOMParser().parseFromString(html, "text/html");
+		return doc.body.textContent || "";
+	}
 
 	dayjs.extend(utc);
 	dayjs.extend(timezone);
@@ -130,13 +154,43 @@ export default function UpdateContentModal({ closeModal, open, post }) {
 					취소하기
 				</Button>
 				<Button
+					disabled={
+						isSubmitting || title.trim() === "" || stripHtml(content).trim() === ""
+					}
 					className="bg-[#15F5BA] text-[#261E5A] text-sm"
 					variant="gradient"
 					color="white"
 					onClick={(e) => {
-						// 수정 로직 구현
-						closeModal(e);
+						if (isSubmitting) {
+							alert("글을 등록하는 중입니다. 잠시만 기다려주세요!"); // ✅ 경고 메시지 추가
+							return;
+						}
+
+						const maxLength = 1000; // 최대 글자 수
+						const textLength = content.replace(/<[^>]*>/g, "").length; // HTML 태그 제외한 글자 수
+						if (textLength > maxLength) {
+							toast.error("최대 글자 수 1000자를 초과했습니다", {
+								style: {
+									background: "#17222D",
+									color: "#fff",
+									border: "1px solid #384D63",
+								},
+							});
+							return;
+						}
+						if (title.length > 30) {
+							toast.error("제목은 최대 30자까지", {
+								style: {
+									background: "#17222D",
+									color: "#fff",
+									border: "1px solid #384D63",
+								},
+							});
+							return;
+						}
+						updatePostMutation.mutate();
 					}}
+					loading={updatePostMutation.isPending}
 				>
 					등록하기
 				</Button>
