@@ -25,34 +25,44 @@ async function getUserLikeStatus(userId: string, postId: number) {
 	return !!likeData;
 }
 
-// 자유게시판 전체 게시글 불러오기
-export async function getFreeBoards(): Promise<FreeBoardsRow[]> {
-	const supabase = await createServerSupabaseClient();
-	const { data: session } = await supabase.auth.getSession();
-	const userId = session?.session?.user?.id;
+// 자유게시판 전체 게시글 불러오기 (페이지네이션)
+export async function getFreeBoards(
+        page = 0,
+        limit = 5
+): Promise<FreeBoardsRow[]> {
+        const supabase = await createServerSupabaseClient();
+        const { data: session } = await supabase.auth.getSession();
+        const userId = session?.session?.user?.id;
 
-	// 사용자가 로그인하지 않은 경우 단순 쿼리
-	if (!userId) {
-		const { data, error } = await supabase
-			.from("free_boards_with_user_info")
-			.select("*")
-			.order("created_at", { ascending: false });
+        const from = page * limit;
+        const to = from + limit - 1;
 
-		if (error) handleError(error);
+        // 사용자가 로그인하지 않은 경우 단순 쿼리
+        if (!userId) {
+                const { data, error } = await supabase
+                        .from("free_boards_with_user_info")
+                        .select("*")
+                        .order("created_at", { ascending: false })
+                        .range(from, to);
 
-		return (data ?? []).map((post) => ({ ...post, is_liked: false }));
-	}
+                if (error) handleError(error);
 
-	// 로그인한 경우 JOIN을 사용하는 RPC 함수 호출
-	const { data, error } = await supabase.rpc("get_posts_with_like_status", { user_id: userId });
+                return (data ?? []).map((post) => ({ ...post, is_liked: false }));
+        }
 
-	if (error) handleError(error);
+        // 로그인한 경우 JOIN을 사용하는 RPC 함수 호출
+        const { data, error } = await supabase
+                .rpc("get_posts_with_like_status", { user_id: userId })
+                .order("created_at", { ascending: false })
+                .range(from, to);
 
-	// 🔥 bigint 컬럼을 number로 변환 (예: id 컬럼이 bigint라면)
-	return (data ?? []).map((post) => ({
-		...post,
-		id: Number(post.id), // bigint -> number 변환
-	}));
+        if (error) handleError(error);
+
+        // 🔥 bigint 컬럼을 number로 변환 (예: id 컬럼이 bigint라면)
+        return (data ?? []).map((post) => ({
+                ...post,
+                id: Number(post.id), // bigint -> number 변환
+        }));
 }
 
 /* 자유게시판 특정 글 불러오기 */
