@@ -68,7 +68,11 @@ export default function FreeBoards() {
                                         <PostContentSkeleton />
                                 </>
                         )}
-                        <div ref={loaderRef} />
+                        <div
+                                ref={loaderRef}
+                                className="h-1"
+                                aria-hidden="true"
+                        />
                 </>
         );
 }
