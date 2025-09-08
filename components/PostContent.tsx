@@ -93,7 +93,8 @@ export default function PostContent({ post, detail = false }: PostContentProps) 
                         queryClient.setQueryData<InfiniteData<Post[]>>([
                                 "free_boards",
                         ], (oldData) => {
-                                if (!oldData) return oldData;
+                                if (!oldData || !Array.isArray(oldData.pages))
+                                        return oldData;
                                 return {
                                         ...oldData,
                                         pages: oldData.pages.map((page) =>
@@ -170,7 +171,8 @@ export default function PostContent({ post, detail = false }: PostContentProps) 
                         queryClient.setQueryData<InfiniteData<Post[]>>([
                                 "free_boards",
                         ], (oldData) => {
-                                if (!oldData) return oldData;
+                                if (!oldData || !Array.isArray(oldData.pages))
+                                        return oldData;
                                 return {
                                         ...oldData,
                                         pages: oldData.pages.map((page) =>
