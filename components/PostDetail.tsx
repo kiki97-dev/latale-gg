@@ -3,7 +3,7 @@
 import { useRecoilValue } from "recoil";
 import { freeBoardByIdSelector } from "store/freeBoardState";
 import { useEffect } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query"; // useQueryClient 추가
+import { useQuery, useQueryClient, type InfiniteData } from "@tanstack/react-query"; // useQueryClient 추가
 import { getFreeBoardById } from "actions/free_boards-actions";
 import PostContentSkeleton from "./PostContentSkeleton";
 import { Typography } from "@material-tailwind/react";
@@ -35,15 +35,20 @@ export default function PostDetail({ postId }) {
 
 	// 게시글 데이터가 변경될 때 게시글 목록 캐시도 업데이트
 	useEffect(() => {
-		if (post) {
-			// 게시글 목록의 해당 게시글도 업데이트
-			queryClient.setQueryData(["free_boards"], (oldData: Post[] | undefined) => {
-				if (!oldData) return oldData;
-				return oldData.map((item: Post) =>
-					item.id === post.id ? { ...item, ...post } : item
-				);
-			});
-		}
+                if (post) {
+                        // 게시글 목록의 해당 게시글도 업데이트
+                        queryClient.setQueryData<InfiniteData<Post[]>>(["free_boards"], (oldData) => {
+                                if (!oldData) return oldData;
+                                return {
+                                        ...oldData,
+                                        pages: oldData.pages.map((page) =>
+                                                page.map((item) =>
+                                                        item.id === post.id ? { ...item, ...post } : item
+                                                )
+                                        ),
+                                };
+                        });
+                }
 	}, [post, queryClient, postId]);
 
 	// 로딩 중
