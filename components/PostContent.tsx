@@ -7,7 +7,7 @@ import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
 import sanitizeHtml from "sanitize-html";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { InfiniteData, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toggleLike } from "actions/like-actions";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import { userInfo } from "store/userState";
@@ -66,8 +66,10 @@ export default function PostContent({ post, detail = false }: PostContentProps) 
 		// 낙관적 업데이트 적용 - 즉시 UI 반영
 		onMutate: async () => {
 			// 이전 데이터 백업
-			const previousData = queryClient.getQueryData<Post>(["free_boards", post.id]);
-			const previousBoardsData = queryClient.getQueryData(["free_boards"]);
+                        const previousData = queryClient.getQueryData<Post>(["free_boards", post.id]);
+                        const previousBoardsData = queryClient.getQueryData<InfiniteData<Post[]>>([
+                                "free_boards",
+                        ]);
 
 			// 새로운 좋아요 상태 계산
 			const newIsLiked = !isLiked;
@@ -87,21 +89,26 @@ export default function PostContent({ post, detail = false }: PostContentProps) 
 				});
 			}
 
-			// 2. 게시글 목록 캐시 업데이트
-			queryClient.setQueryData(["free_boards"], (oldData: Post[] | undefined) => {
-				if (!oldData) return oldData;
-				if (!Array.isArray(oldData)) return oldData; // 배열 타입 체크 추가
-
-				return oldData.map((item: Post) =>
-					item.id === post.id
-						? {
-								...item,
-								is_liked: newIsLiked,
-								like_count: newLikeCount,
-						  }
-						: item
-				);
-			});
+                        // 2. 게시글 목록 캐시 업데이트
+                        queryClient.setQueryData<InfiniteData<Post[]>>([
+                                "free_boards",
+                        ], (oldData) => {
+                                if (!oldData) return oldData;
+                                return {
+                                        ...oldData,
+                                        pages: oldData.pages.map((page) =>
+                                                page.map((item) =>
+                                                        item.id === post.id
+                                                                ? {
+                                                                                ...item,
+                                                                                is_liked: newIsLiked,
+                                                                                like_count: newLikeCount,
+                                                                  }
+                                                                : item
+                                                )
+                                        ),
+                                };
+                        });
 
 			return { previousData, previousBoardsData };
 		},
@@ -151,19 +158,26 @@ export default function PostContent({ post, detail = false }: PostContentProps) 
 		// 낙관적 업데이트 적용
 		onMutate: async () => {
 			// 이전 데이터 백업
-			const previousData = queryClient.getQueryData<Post>(["free_boards", post.id]);
-			const previousBoardsData = queryClient.getQueryData(["free_boards"]);
+                        const previousData = queryClient.getQueryData<Post>(["free_boards", post.id]);
+                        const previousBoardsData = queryClient.getQueryData<InfiniteData<Post[]>>([
+                                "free_boards",
+                        ]);
 
 			// 1. 단일 게시글 캐시에서 제거
 			queryClient.removeQueries({ queryKey: ["free_boards", post.id] });
 
-			// 2. 게시글 목록 캐시 업데이트 - 해당 게시글 제거
-			queryClient.setQueryData(["free_boards"], (oldData: Post[] | undefined) => {
-				if (!oldData) return oldData;
-				if (!Array.isArray(oldData)) return oldData; // 배열 타입 체크 추가
-
-				return oldData.filter((item: Post) => item.id !== post.id);
-			});
+                        // 2. 게시글 목록 캐시 업데이트 - 해당 게시글 제거
+                        queryClient.setQueryData<InfiniteData<Post[]>>([
+                                "free_boards",
+                        ], (oldData) => {
+                                if (!oldData) return oldData;
+                                return {
+                                        ...oldData,
+                                        pages: oldData.pages.map((page) =>
+                                                page.filter((item) => item.id !== post.id)
+                                        ),
+                                };
+                        });
 
 			return { previousData, previousBoardsData };
 		},
