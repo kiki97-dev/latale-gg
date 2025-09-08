@@ -45,7 +45,8 @@ export default function PostDetail({ postId }) {
                         queryClient.setQueryData<InfiniteData<FreeBoardsRow[]>>(
                                 ["free_boards"],
                                 (oldData) => {
-                                        if (!oldData) return oldData;
+                                        if (!oldData || !Array.isArray(oldData.pages))
+                                                return oldData;
                                         return {
                                                 ...oldData,
                                                 pages: oldData.pages.map((page) =>
