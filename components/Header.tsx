@@ -24,7 +24,7 @@ export default function Header() {
 					LATALE.GG
 				</Link>
 				{/* 검색 */}
-				<div>
+				<div className="hedaer-search">
 					<Input
 						className="!text-[#fff] !bg-[#121B24] border-none rounded-full pl-5 !font-light focus:outline-1  focus:outline-[#15F5BA] duration-0 placeholder-[#688DB2] placeholder:opacity-100"
 						color="white"

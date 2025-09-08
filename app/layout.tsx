@@ -51,9 +51,9 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
 									<Toaster />
 								</div>
 								<Header />
-								<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex pt-[90px]">
+								<div className="root-wrap max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex pt-[90px]">
 									<Sidebar />
-									<div className="flex items-start flex-1 ml-[calc(272px+1.75rem)]">
+									<div className="community-wrap flex items-start flex-1 ml-[calc(272px+1.75rem)]">
 										{children}
 									</div>
 									<Aside />

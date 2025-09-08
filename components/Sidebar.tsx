@@ -27,7 +27,7 @@ export function Sidebar() {
 	const setSelectedItem = (value) => setSelected(value);
 
 	return (
-		<div className="h-auto w-full max-w-[17rem] fixed top-[84px]">
+		<div className="main-left h-auto w-full max-w-[17rem] fixed top-[84px]">
 			<Card className=" bg-[#17222D] shadow-none mb-3">
 				<List className="min-w-0 text-[#677079] ">
 					{sidebarMeun.map(({ label, icon }, i) => {

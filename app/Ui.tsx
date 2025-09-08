@@ -9,7 +9,7 @@ export default function Ui() {
 	const session = useRecoilValue(sessionState); // 전역 세션 값 가져오기
 	return (
 		<>
-			<section className="flex-1 flex flex-col gap-3 pb-10">
+			<section className="community__inner flex-1 flex flex-col gap-3 pb-10">
 				<PostInput session={session} />
 				<FreeBoards />
 			</section>
