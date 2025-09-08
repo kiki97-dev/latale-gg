@@ -12,6 +12,7 @@ import { Post } from "types/post";
 export default function FreeBoards() {
         const setFreeBoards = useSetRecoilState(freeBoardsState);
         const loaderRef = useRef<HTMLDivElement | null>(null);
+        const observerRef = useRef<IntersectionObserver | null>(null);
         const PAGE_SIZE = 5;
 
         const freeBoardsQuery = useInfiniteQuery({
@@ -35,19 +36,28 @@ export default function FreeBoards() {
 
         // Intersection Observer를 사용해 스크롤 하단에서 추가 게시글 로드
         useEffect(() => {
-                const observer = new IntersectionObserver((entries) => {
-                        if (entries[0].isIntersecting && freeBoardsQuery.hasNextPage && !freeBoardsQuery.isFetchingNextPage) {
+                const loader = loaderRef.current;
+                if (!loader) return;
+
+                observerRef.current?.disconnect();
+                observerRef.current = new IntersectionObserver((entries) => {
+                        if (
+                                entries[0].isIntersecting &&
+                                freeBoardsQuery.hasNextPage &&
+                                !freeBoardsQuery.isFetchingNextPage
+                        ) {
                                 freeBoardsQuery.fetchNextPage();
                         }
                 });
 
-                const loader = loaderRef.current;
-                if (loader) observer.observe(loader);
+                observerRef.current.observe(loader);
+        }, [freeBoardsQuery.hasNextPage, freeBoardsQuery.isFetchingNextPage]);
 
+        useEffect(() => {
                 return () => {
-                        if (loader) observer.unobserve(loader);
+                        observerRef.current?.disconnect();
                 };
-        }, [freeBoardsQuery]);
+        }, []);
 
         return (
                 <>
